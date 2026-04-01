@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRESENTATION_TITLE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        /* ===========================================
+           THEME VARIABLES
+           =========================================== */
+        :root {
+            --brand-navy: #1A1F5D;
+            --brand-red: #E10B0A;
+            --brand-dark-red: #C20202;
+            --brand-red-50: #FCE7E7;
+            --brand-black: #262626;
+            --brand-muted: #686879;
+            --brand-light-gray: #F6F6F6;
+            --brand-white: #FFFFFF;
+            --brand-grey-50: #E7E7E7;
+            --brand-grey-100: #D1D1D1;
+            --border: #ECECF0;
+            --bg-header: #EFF2FF;
+            --font-heading: 'Figtree', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --slide-padding: clamp(2.5rem, 6vw, 5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ===========================================
+           BASE
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--brand-white);
+            color: var(--brand-black);
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           SLIDE CONTAINER
+           =========================================== */
+        .slide {
+            min-height: 100vh;
+            padding: var(--slide-padding);
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-inner {
+            width: 100%;
+            max-width: 1060px;
+        }
+
+        /* Alternating background */
+        .slide.alt { background: var(--brand-light-gray); }
+
+        /* ===========================================
+           REVEAL ANIMATIONS
+           Elements with class "reveal" fade up when
+           their parent slide becomes visible.
+           Add s1-s7 for staggered delay.
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .s1 { transition-delay: 0.1s; }
+        .s2 { transition-delay: 0.2s; }
+        .s3 { transition-delay: 0.3s; }
+        .s4 { transition-delay: 0.4s; }
+        .s5 { transition-delay: 0.5s; }
+        .s6 { transition-delay: 0.6s; }
+        .s7 { transition-delay: 0.7s; }
+
+        /* ===========================================
+           SPOTLIGHT HOVER
+           Parent dims all children; hovered child
+           restores. Four variants for different
+           component types.
+           =========================================== */
+
+        /* Generic: .spot-group on container, .spot-item on children */
+        .spot-item {
+            transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+        }
+
+        .spot-group:hover .spot-item {
+            opacity: 0.35;
+        }
+
+        .spot-group:hover .spot-item:hover {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        /* Table rows: .spot-table on <table> */
+        .spot-table tbody tr {
+            transition: opacity 0.25s ease, background-color 0.25s ease;
+        }
+
+        .spot-table:hover tbody tr {
+            opacity: 0.35;
+        }
+
+        .spot-table:hover tbody tr:hover {
+            opacity: 1;
+            background: var(--bg-header);
+        }
+
+        /* Cards: .spot-card on each card (uses :has() for sibling dim) */
+        .spot-card {
+            transition: opacity 0.25s ease, transform 0.2s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .spot-card:not(:hover):has(~ .spot-card:hover),
+        .spot-card:hover ~ .spot-card {
+            opacity: 0.35;
+        }
+
+        .spot-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--brand-navy);
+            box-shadow: 0 4px 16px rgba(26, 31, 93, 0.08);
+        }
+
+        /* Sidebar rows: .spot-group on container, .spot-row on children */
+        .spot-row {
+            transition: opacity 0.25s ease, padding-left 0.2s ease;
+            border-radius: 4px;
+            margin: 0 -0.5em;
+            padding-left: 0.5em;
+            padding-right: 0.5em;
+        }
+
+        .spot-group:hover .spot-row {
+            opacity: 0.35;
+        }
+
+        .spot-group:hover .spot-row:hover {
+            opacity: 1;
+            background: var(--bg-header);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spot-item, .spot-card, .spot-row,
+            .spot-table tbody tr {
+                transition: opacity 0.15s ease;
+                transform: none !important;
+            }
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: var(--brand-red);
+            width: 0%;
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAV DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand-grey-100);
+            border: none;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            padding: 0;
+            position: relative;
+        }
+
+        .nav-dot:focus, .nav-dot:focus-visible,
+        .nav-dot:active, .nav-dot:hover {
+            outline: none;
+            box-shadow: none;
+            background: var(--brand-grey-100);
+        }
+
+        .nav-dot.active,
+        .nav-dot.active:hover,
+        .nav-dot.active:focus {
+            background: var(--brand-red);
+            transform: scale(1.4);
+        }
+
+        .nav-dot .nav-label {
+            position: absolute;
+            right: calc(100% + 10px);
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            font-family: var(--font-heading);
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--brand-navy);
+            background: var(--brand-white);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.35em 0.6em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .nav-dot .nav-label .nav-label-num {
+            color: var(--brand-muted);
+            margin-right: 0.4em;
+        }
+
+        .nav-dot:hover .nav-label {
+            opacity: 1;
+        }
+
+        /* ===========================================
+           SLIDE NUMBER & KEYBOARD HINT
+           =========================================== */
+        .slide-num {
+            position: absolute;
+            bottom: var(--slide-padding);
+            right: var(--slide-padding);
+            font-size: 0.65rem;
+            color: var(--brand-grey-100);
+            letter-spacing: 0.05em;
+        }
+
+        .keyboard-hint {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: var(--brand-grey-100);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: opacity 0.5s;
+        }
+
+        .keyboard-hint.hidden { opacity: 0; pointer-events: none; }
+
+        /* ===========================================
+           SHARED COMPONENTS
+           =========================================== */
+
+        /* Tag line: red dot + uppercase label */
+        .tag-line {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2vh;
+        }
+
+        .tag-line .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand-red);
+        }
+
+        .tag-line .text {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+        }
+
+        /* Section label */
+        .section-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+            margin-bottom: 1vh;
+        }
+
+        /* Headings */
+        h1 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+            color: var(--brand-navy);
+            margin-bottom: 1.5vh;
+        }
+
+        h2 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            line-height: 1.2;
+            color: var(--brand-navy);
+            margin-bottom: 2vh;
+        }
+
+        h3 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+            color: var(--brand-black);
+            margin-bottom: 0.3em;
+        }
+
+        .desc {
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+            font-weight: 300;
+            color: var(--brand-muted);
+            line-height: 1.7;
+        }
+
+        /* Links */
+        a.ref-link {
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px solid var(--brand-grey-100);
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        a.ref-link:hover {
+            color: var(--brand-navy);
+            border-bottom-color: var(--brand-navy);
+        }
+
+        /* Pill badges */
+        .pill {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.3em 0.6em;
+            border-radius: 3px;
+        }
+
+        .pill.primary { color: var(--brand-navy); background: var(--bg-header); }
+        .pill.accent { color: var(--brand-dark-red); background: var(--brand-red-50); }
+        .pill.muted { color: var(--brand-muted); background: transparent; border: 1px solid var(--border); }
+
+        /* ===========================================
+           COMPONENT-SPECIFIC CSS
+           Add styles for your chosen components here.
+           See references/components.md for each
+           component's required CSS.
+           =========================================== */
+
+
+        /* ===========================================
+           RESPONSIVE
+           =========================================== */
+        @media (max-width: 900px) {
+            /* Override all grid layouts to single column */
+            .slide-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .nav-dots, .keyboard-hint { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                transition: opacity 0.3s ease;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar"></div>
+    <nav class="nav-dots"></nav>
+    <div class="keyboard-hint">Arrow keys or scroll to navigate</div>
+
+    <!-- SLIDES GO HERE -->
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.dots = document.querySelector('.nav-dots');
+                this.progressBar = document.querySelector('.progress-bar');
+                this.hint = document.querySelector('.keyboard-hint');
+                this.currentSlide = 0;
+
+                this.createDots();
+                this.setupObserver();
+                this.setupKeyboard();
+                this.setupWheel();
+                this.setupTouch();
+                this.updateProgress();
+            }
+
+            createDots() {
+                this.slides.forEach((slide, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+
+                    const heading = slide.querySelector('h1, h2');
+                    const title = heading ? heading.textContent.replace(/\s+/g, ' ').trim() : `Slide ${i + 1}`;
+                    dot.setAttribute('aria-label', `Go to slide ${i + 1}: ${title}`);
+
+                    const label = document.createElement('span');
+                    label.className = 'nav-label';
+                    label.innerHTML = `<span class="nav-label-num">${String(i + 1).padStart(2, '0')}</span>${title}`;
+                    dot.appendChild(label);
+
+                    dot.addEventListener('click', () => this.goTo(i));
+                    this.dots.appendChild(dot);
+                });
+            }
+
+            setupObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = [...this.slides].indexOf(entry.target);
+                            this.currentSlide = idx;
+                            this.updateDots();
+                            this.updateProgress();
+                            if (this.hint) this.hint.classList.add('hidden');
+                        }
+                    });
+                }, { threshold: 0.35 });
+
+                this.slides.forEach(s => observer.observe(s));
+            }
+
+            setupKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault();
+                        this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                });
+            }
+
+            setupWheel() {
+                let throttle = false;
+                document.addEventListener('wheel', (e) => {
+                    if (throttle) return;
+                    throttle = true;
+                    setTimeout(() => throttle = false, 800);
+
+                    if (e.deltaY > 30) {
+                        this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                    } else if (e.deltaY < -30) {
+                        this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                }, { passive: true });
+            }
+
+            setupTouch() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+                document.addEventListener('touchend', (e) => {
+                    const diff = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                        else this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                }, { passive: true });
+            }
+
+            goTo(idx) {
+                this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+            }
+
+            updateDots() {
+                this.dots.querySelectorAll('.nav-dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+
+            updateProgress() {
+                const pct = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = pct + '%';
+            }
+        }
+
+        new SlidePresentation();
+    </script>
+</body>
+</html>

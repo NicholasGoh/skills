@@ -1,0 +1,23 @@
+{
+  "skill_name": "slides",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a presentation for our Q1 2026 quarterly business review. Revenue was $4.2M (up 18% YoY), we launched 2 new products, have 3 key risks (supply chain delays, competitor pricing pressure, talent retention), and next quarter priorities are expanding into APAC, hiring 15 engineers, and shipping v3.0.",
+      "expected_output": "8-slide HTML presentation with title slide, revenue/KPI stats, product launches, risks as cards, priorities as flow steps, next steps. Uses the design system typography, colors, spotlight hover, scroll-snap navigation.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Make slides explaining our microservices migration. We're moving from a Django monolith to 6 services: auth, billing, notifications, search, content, analytics. Show the migration phases, key risks, and the target architecture.",
+      "expected_output": "6-8 slide HTML presentation covering current state, target architecture (6 services), migration phases as flow steps, risks as cards, and timeline. Uses two-column layouts, data tables or principle lists for services.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Create a new employee onboarding presentation. Cover: company mission, team structure (Engineering, Product, Design, Sales — 4 teams), first week checklist (5 steps), tools we use (Slack, Linear, GitHub, Figma), and who to contact for what.",
+      "expected_output": "6-8 slide HTML presentation with title/mission slide, team structure as cards or principle list, first week as flow steps, tools as icon cards, contacts as sidebar rows. Friendly but professional tone.",
+      "files": []
+    }
+  ]
+}
