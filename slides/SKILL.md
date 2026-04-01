@@ -30,7 +30,7 @@ Key principles:
 
 ### Step 1: Read the template
 
-Read `references/template.html` in this skill directory. It contains the complete CSS design system (tokens, engine, shared components) and the JS presentation controller. The template has a `<!-- SLIDES GO HERE -->` marker where slide sections are inserted.
+Read `references/template.html` in this skill directory. It contains the complete CSS design system (tokens, engine, shared components) and the JS presentation controller. The template has `<!-- __SLIDES__ -->` and `/* __COMPONENT_CSS__ */` markers for content insertion.
 
 ### Step 2: Plan the slide structure
 
@@ -53,7 +53,7 @@ Alternate `class="slide"` (white) and `class="slide alt"` (gray) for visual rhyt
 
 ### Step 3: Pick components
 
-Read `references/components.md` for the full catalog. Each component includes its HTML structure and any CSS that needs to be added to the `<style>` block. The template's engine CSS handles the framework; component CSS handles the specific layouts.
+Read `references/components/index.md` for the catalog with when-to-use guidance. Then read only the component files you need. Each file includes HTML structure and CSS to add to the `<style>` block.
 
 Common slide patterns:
 - **Title slide**: 2-column with heading + sidebar summary
@@ -79,7 +79,14 @@ Add interactive hover focus to groups of related items. Choose the appropriate v
 
 ### Step 6: Assemble and output
 
-Copy the template, insert all slide sections, add any component-specific CSS to the `<style>` block (after the engine CSS), and update the total slide count in the `slide-num` spans.
+Do NOT regenerate the template from memory. Use the file directly:
+
+1. **Copy**: `cp <skill-dir>/references/template.html <output-path>`
+2. **Title**: Edit — replace `PRESENTATION_TITLE` with the actual title
+3. **CSS**: Edit — replace `/* __COMPONENT_CSS__ */` with all component CSS
+4. **Slides**: Edit — replace `<!-- __SLIDES__ -->` with all `<section>` elements
+
+After inserting slides, update the total count in every `<span class="slide-num">` (e.g., `01 / 08`).
 
 ## Adapting the Color Palette
 
