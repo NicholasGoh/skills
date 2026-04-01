@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microservices Migration — Django Monolith to Service-Oriented Architecture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        /* ===========================================
+           THEME VARIABLES
+           =========================================== */
+        :root {
+            --brand-navy: #1A1F5D;
+            --brand-red: #E10B0A;
+            --brand-dark-red: #C20202;
+            --brand-red-50: #FCE7E7;
+            --brand-black: #262626;
+            --brand-muted: #686879;
+            --brand-light-gray: #F6F6F6;
+            --brand-white: #FFFFFF;
+            --brand-grey-50: #E7E7E7;
+            --brand-grey-100: #D1D1D1;
+            --border: #ECECF0;
+            --bg-header: #EFF2FF;
+            --font-heading: 'Figtree', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --slide-padding: clamp(2.5rem, 6vw, 5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ===========================================
+           BASE
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--brand-white);
+            color: var(--brand-black);
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           SLIDE CONTAINER
+           =========================================== */
+        .slide {
+            min-height: 100vh;
+            padding: var(--slide-padding);
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-inner {
+            width: 100%;
+            max-width: 1060px;
+        }
+
+        /* Alternating background */
+        .slide.alt { background: var(--brand-light-gray); }
+
+        /* ===========================================
+           REVEAL ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .s1 { transition-delay: 0.1s; }
+        .s2 { transition-delay: 0.2s; }
+        .s3 { transition-delay: 0.3s; }
+        .s4 { transition-delay: 0.4s; }
+        .s5 { transition-delay: 0.5s; }
+        .s6 { transition-delay: 0.6s; }
+        .s7 { transition-delay: 0.7s; }
+
+        /* ===========================================
+           SPOTLIGHT HOVER
+           =========================================== */
+
+        /* Generic: .spot-group on container, .spot-item on children */
+        .spot-item {
+            transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+        }
+
+        .spot-group:hover .spot-item {
+            opacity: 0.35;
+        }
+
+        .spot-group:hover .spot-item:hover {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        /* Table rows: .spot-table on <table> */
+        .spot-table tbody tr {
+            transition: opacity 0.25s ease, background-color 0.25s ease;
+        }
+
+        .spot-table:hover tbody tr {
+            opacity: 0.35;
+        }
+
+        .spot-table:hover tbody tr:hover {
+            opacity: 1;
+            background: var(--bg-header);
+        }
+
+        /* Cards: .spot-card on each card */
+        .spot-card {
+            transition: opacity 0.25s ease, transform 0.2s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .spot-card:not(:hover):has(~ .spot-card:hover),
+        .spot-card:hover ~ .spot-card {
+            opacity: 0.35;
+        }
+
+        .spot-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--brand-navy);
+            box-shadow: 0 4px 16px rgba(26, 31, 93, 0.08);
+        }
+
+        /* Sidebar rows: .spot-group on container, .spot-row on children */
+        .spot-row {
+            transition: opacity 0.25s ease, padding-left 0.2s ease;
+            border-radius: 4px;
+            margin: 0 -0.5em;
+            padding-left: 0.5em;
+            padding-right: 0.5em;
+        }
+
+        .spot-group:hover .spot-row {
+            opacity: 0.35;
+        }
+
+        .spot-group:hover .spot-row:hover {
+            opacity: 1;
+            background: var(--bg-header);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spot-item, .spot-card, .spot-row,
+            .spot-table tbody tr {
+                transition: opacity 0.15s ease;
+                transform: none !important;
+            }
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: var(--brand-red);
+            width: 0%;
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAV DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand-grey-100);
+            border: none;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            padding: 0;
+            position: relative;
+        }
+
+        .nav-dot:focus, .nav-dot:focus-visible,
+        .nav-dot:active, .nav-dot:hover {
+            outline: none;
+            box-shadow: none;
+            background: var(--brand-grey-100);
+        }
+
+        .nav-dot.active,
+        .nav-dot.active:hover,
+        .nav-dot.active:focus {
+            background: var(--brand-red);
+            transform: scale(1.4);
+        }
+
+        .nav-dot .nav-label {
+            position: absolute;
+            right: calc(100% + 10px);
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            font-family: var(--font-heading);
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--brand-navy);
+            background: var(--brand-white);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.35em 0.6em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .nav-dot .nav-label .nav-label-num {
+            color: var(--brand-muted);
+            margin-right: 0.4em;
+        }
+
+        .nav-dot:hover .nav-label {
+            opacity: 1;
+        }
+
+        /* ===========================================
+           SLIDE NUMBER & KEYBOARD HINT
+           =========================================== */
+        .slide-num {
+            position: absolute;
+            bottom: var(--slide-padding);
+            right: var(--slide-padding);
+            font-size: 0.65rem;
+            color: var(--brand-grey-100);
+            letter-spacing: 0.05em;
+        }
+
+        .keyboard-hint {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: var(--brand-grey-100);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: opacity 0.5s;
+        }
+
+        .keyboard-hint.hidden { opacity: 0; pointer-events: none; }
+
+        /* ===========================================
+           SHARED COMPONENTS
+           =========================================== */
+
+        /* Tag line: red dot + uppercase label */
+        .tag-line {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2vh;
+        }
+
+        .tag-line .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand-red);
+        }
+
+        .tag-line .text {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+        }
+
+        /* Section label */
+        .section-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+            margin-bottom: 1vh;
+        }
+
+        /* Headings */
+        h1 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+            color: var(--brand-navy);
+            margin-bottom: 1.5vh;
+        }
+
+        h2 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            line-height: 1.2;
+            color: var(--brand-navy);
+            margin-bottom: 2vh;
+        }
+
+        h3 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+            color: var(--brand-black);
+            margin-bottom: 0.3em;
+        }
+
+        .desc {
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+            font-weight: 300;
+            color: var(--brand-muted);
+            line-height: 1.7;
+        }
+
+        /* Links */
+        a.ref-link {
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px solid var(--brand-grey-100);
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        a.ref-link:hover {
+            color: var(--brand-navy);
+            border-bottom-color: var(--brand-navy);
+        }
+
+        /* Pill badges */
+        .pill {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.3em 0.6em;
+            border-radius: 3px;
+        }
+
+        .pill.primary { color: var(--brand-navy); background: var(--bg-header); }
+        .pill.accent { color: var(--brand-dark-red); background: var(--brand-red-50); }
+        .pill.muted { color: var(--brand-muted); background: transparent; border: 1px solid var(--border); }
+
+        /* ===========================================
+           COMPONENT-SPECIFIC CSS
+           =========================================== */
+
+        /* Title grid */
+        .title-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .title-subtitle {
+            max-width: 460px;
+            margin-bottom: 3vh;
+        }
+
+        .method-row {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .method-item {
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+        }
+
+        .method-item .icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .method-item .icon.primary { background: var(--brand-navy); }
+        .method-item .icon.accent { background: var(--brand-red); }
+
+        .method-item .m-label {
+            font-size: 0.75rem;
+            color: var(--brand-black);
+            font-weight: 500;
+        }
+
+        .method-item .m-desc {
+            font-size: 0.7rem;
+            color: var(--brand-muted);
+            font-weight: 300;
+        }
+
+        /* Content grid (Two-Column with Sidebar) */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        /* Sidebar panel */
+        .sidebar {
+            background: var(--brand-light-gray);
+            border-radius: 10px;
+            padding: 2em 1.8em;
+        }
+
+        .sidebar-title {
+            font-family: var(--font-heading);
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+            margin-bottom: 1.5em;
+        }
+
+        .p-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.65em 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .p-row:last-child { border-bottom: none; }
+
+        .p-row .p-label {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--brand-black);
+        }
+
+        .p-row.dimmed .p-label { color: var(--brand-muted); }
+
+        /* Numbered list */
+        .rule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .rule-item {
+            display: grid;
+            grid-template-columns: 28px 1fr;
+            gap: 1rem;
+            padding: 1.2em 0;
+            border-bottom: 1px solid var(--border);
+            align-items: start;
+        }
+
+        .rule-item:last-child { border-bottom: none; }
+
+        .rule-item .ri-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-heading);
+            font-size: 0.65rem;
+            font-weight: 600;
+            background: var(--brand-white);
+            border: 1px solid var(--border);
+            color: var(--brand-red);
+        }
+
+        .slide.alt .rule-item .ri-icon { background: var(--brand-white); }
+
+        .rule-item .ri-title {
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--brand-black);
+            margin-bottom: 0.2em;
+        }
+
+        .rule-item .ri-desc {
+            font-size: 0.78rem;
+            font-weight: 300;
+            color: var(--brand-muted);
+            line-height: 1.6;
+        }
+
+        /* Flow steps */
+        .flow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .flow-step {
+            display: grid;
+            grid-template-columns: 40px 1fr;
+            gap: 1rem;
+            padding: 1.2em 0;
+            border-bottom: 1px solid var(--border);
+            align-items: start;
+        }
+
+        .flow-step:last-child { border-bottom: none; }
+
+        .flow-step .fs-num {
+            font-family: var(--font-heading);
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--brand-red);
+            background: var(--brand-white);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+        }
+
+        .flow-step .fs-title {
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--brand-black);
+            margin-bottom: 0.2em;
+        }
+
+        .flow-step .fs-desc {
+            font-size: 0.78rem;
+            font-weight: 300;
+            color: var(--brand-muted);
+            line-height: 1.6;
+        }
+
+        /* Risk / Feature cards */
+        .risk-card {
+            background: var(--brand-white);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.4em 1.3em;
+            margin-bottom: 1rem;
+        }
+
+        .risk-card .rc-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.6em;
+        }
+
+        .risk-card .rc-tag {
+            font-family: var(--font-heading);
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--brand-dark-red);
+            background: var(--brand-red-50);
+            padding: 0.25em 0.5em;
+            border-radius: 3px;
+        }
+
+        .risk-card .rc-title {
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--brand-black);
+        }
+
+        .risk-card .rc-desc {
+            font-size: 0.78rem;
+            font-weight: 300;
+            color: var(--brand-muted);
+            line-height: 1.6;
+            margin-bottom: 0.6em;
+        }
+
+        .risk-card .rc-maps {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .risk-card .rc-pill {
+            font-size: 0.58rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            color: var(--brand-navy);
+            background: var(--bg-header);
+            padding: 0.25em 0.5em;
+            border-radius: 3px;
+        }
+
+        /* Icon cards */
+        .icon-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .icon-card {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.2rem 1.4rem;
+            background: var(--brand-white);
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+        }
+
+        .icon-card:hover {
+            border-color: var(--brand-navy);
+            box-shadow: 0 3px 12px rgba(26, 31, 93, 0.07);
+        }
+
+        .icon-cards:hover .icon-card:not(:hover) {
+            opacity: 0.4;
+        }
+
+        .icon-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .icon-card-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .icon-card-icon.primary { background: var(--bg-header); color: var(--brand-navy); }
+        .icon-card-icon.accent { background: var(--brand-red-50); color: var(--brand-dark-red); }
+        .icon-card-icon.success { background: #E8F5E9; color: #2E7D32; }
+
+        .icon-card-title {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--brand-navy);
+        }
+
+        .icon-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .icon-card li {
+            font-size: 0.75rem;
+            color: var(--brand-muted);
+            line-height: 1.6;
+            padding-left: 1em;
+            position: relative;
+        }
+
+        .icon-card li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--brand-grey-100);
+        }
+
+        /* Data table */
+        .bench-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .bench-table th {
+            font-family: var(--font-heading);
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+            background: var(--brand-light-gray);
+            padding: 0.7em 0.8em;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .bench-table td {
+            font-size: 0.72rem;
+            font-weight: 300;
+            color: var(--brand-black);
+            padding: 0.8em;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            line-height: 1.5;
+        }
+
+        .bench-table tr:last-child td { border-bottom: none; }
+
+        .bench-table .bt-service {
+            font-family: var(--font-heading);
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+            color: var(--brand-navy);
+        }
+
+        /* Stat callouts */
+        .stat-row {
+            display: flex;
+            gap: 3rem;
+            margin: 2vh 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            color: var(--brand-navy);
+            line-height: 1.1;
+        }
+
+        .stat-value.accent { color: var(--brand-red); }
+
+        .stat-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+            margin-top: 0.5em;
+        }
+
+        /* Architecture diagram */
+        .arch-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .arch-layer {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            background: var(--brand-white);
+        }
+
+        .arch-layer-label {
+            font-family: var(--font-heading);
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+            margin-bottom: 0.7em;
+        }
+
+        .arch-services {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .arch-svc {
+            font-family: var(--font-heading);
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 0.4em 0.8em;
+            border-radius: 5px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .arch-svc:hover {
+            transform: translateY(-1px);
+            border-color: var(--brand-navy);
+            box-shadow: 0 2px 8px rgba(26, 31, 93, 0.08);
+        }
+
+        .arch-svc.navy { color: var(--brand-white); background: var(--brand-navy); border-color: var(--brand-navy); }
+        .arch-svc.red { color: var(--brand-white); background: var(--brand-red); border-color: var(--brand-red); }
+        .arch-svc.outline { color: var(--brand-navy); background: var(--bg-header); }
+
+        .arch-arrow {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--brand-grey-100);
+            letter-spacing: 0.3em;
+        }
+
+        /* Principle / Checklist */
+        .principle-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .pl-item {
+            display: grid;
+            grid-template-columns: 32px 1fr auto;
+            gap: 0.8rem;
+            padding: 0.75em 0;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .pl-item:last-child { border-bottom: none; }
+
+        .pl-item .pl-num {
+            font-family: var(--font-heading);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--brand-muted);
+            text-align: center;
+        }
+
+        .pl-item.active .pl-num { color: var(--brand-red); }
+
+        .pl-item .pl-name {
+            font-size: 0.82rem;
+            font-weight: 400;
+            color: var(--brand-black);
+        }
+
+        .pl-item.inactive .pl-name { color: var(--brand-muted); }
+
+        /* ===========================================
+           RESPONSIVE
+           =========================================== */
+        @media (max-width: 900px) {
+            .slide-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .nav-dots, .keyboard-hint { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                transition: opacity 0.3s ease;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar"></div>
+    <nav class="nav-dots"></nav>
+    <div class="keyboard-hint">Arrow keys or scroll to navigate</div>
+
+    <!-- ==========================================
+         SLIDE 1 — TITLE
+         ========================================== -->
+    <section class="slide" id="slide-1">
+        <div class="slide-inner">
+            <div class="title-grid slide-grid">
+                <div>
+                    <div class="tag-line reveal s1">
+                        <span class="dot"></span>
+                        <span class="text">PLATFORM ENGINEERING</span>
+                    </div>
+                    <h1 class="reveal s2">Microservices<br>Migration</h1>
+                    <p class="title-subtitle desc reveal s3">Moving from our Django monolith to a distributed service-oriented architecture. Six targeted services, three migration phases, zero downtime.</p>
+
+                    <div class="method-row reveal s4">
+                        <div class="method-item">
+                            <div class="icon primary"></div>
+                            <div>
+                                <div class="m-label">Current State</div>
+                                <div class="m-desc">Django monolith</div>
+                            </div>
+                        </div>
+                        <div class="method-item">
+                            <div class="icon accent"></div>
+                            <div>
+                                <div class="m-label">Target State</div>
+                                <div class="m-desc">6 independent services</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar reveal s5 spot-group">
+                    <div class="sidebar-title">Target Services</div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Auth</span>
+                        <span class="pill primary">Identity</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Billing</span>
+                        <span class="pill primary">Payments</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Notifications</span>
+                        <span class="pill primary">Messaging</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Search</span>
+                        <span class="pill primary">Discovery</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Content</span>
+                        <span class="pill primary">Core Data</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Analytics</span>
+                        <span class="pill primary">Insights</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">01 / 08</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 2 — WHY MIGRATE
+         ========================================== -->
+    <section class="slide alt" id="slide-2">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">The Problem</p>
+                    <h2 class="reveal s2">Why We Need<br>To Move</h2>
+                    <p class="desc reveal s3">Our Django monolith has served us well, but growth has exposed structural limits that slow delivery and increase risk.</p>
+                </div>
+
+                <div class="rule-list spot-group">
+                    <div class="rule-item spot-item reveal s2">
+                        <div class="ri-icon">1</div>
+                        <div>
+                            <div class="ri-title">Deployment Bottleneck</div>
+                            <div class="ri-desc">Every change requires a full monolith deploy. A single broken test blocks all teams. Average deploy cycle has grown to 4+ hours.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s3">
+                        <div class="ri-icon">2</div>
+                        <div>
+                            <div class="ri-title">Scaling Limitations</div>
+                            <div class="ri-desc">Search and analytics workloads consume resources that starve billing and auth. We can only scale everything together, wasting compute.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s4">
+                        <div class="ri-icon">3</div>
+                        <div>
+                            <div class="ri-title">Team Coupling</div>
+                            <div class="ri-desc">Six teams share one codebase. Merge conflicts, unclear ownership, and implicit dependencies create friction and slow feature delivery.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s5">
+                        <div class="ri-icon">4</div>
+                        <div>
+                            <div class="ri-title">Technology Lock-in</div>
+                            <div class="ri-desc">The monolith constrains us to a single Python/Django stack. Some domains (search, analytics) would benefit from purpose-built technology.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">02 / 08</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 3 — TARGET ARCHITECTURE
+         ========================================== -->
+    <section class="slide" id="slide-3">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Target State</p>
+                    <h2 class="reveal s2">Service<br>Architecture</h2>
+                    <p class="desc reveal s3">All client traffic routes through an API gateway. Services communicate via async events and targeted synchronous calls. Each service owns its data store.</p>
+                </div>
+
+                <div class="arch-diagram reveal s4">
+                    <div class="arch-layer">
+                        <div class="arch-layer-label">Client Layer</div>
+                        <div class="arch-services">
+                            <div class="arch-svc outline">Web App</div>
+                            <div class="arch-svc outline">Mobile App</div>
+                            <div class="arch-svc outline">Partner API</div>
+                        </div>
+                    </div>
+
+                    <div class="arch-arrow">&#9660; &#9660; &#9660;</div>
+
+                    <div class="arch-layer">
+                        <div class="arch-layer-label">API Gateway &amp; Load Balancer</div>
+                        <div class="arch-services">
+                            <div class="arch-svc navy">Gateway</div>
+                            <div class="arch-svc outline">Rate Limiting</div>
+                            <div class="arch-svc outline">Auth Middleware</div>
+                        </div>
+                    </div>
+
+                    <div class="arch-arrow">&#9660; &#9660; &#9660;</div>
+
+                    <div class="arch-layer">
+                        <div class="arch-layer-label">Services</div>
+                        <div class="arch-services">
+                            <div class="arch-svc red">Auth</div>
+                            <div class="arch-svc red">Billing</div>
+                            <div class="arch-svc red">Content</div>
+                            <div class="arch-svc red">Search</div>
+                            <div class="arch-svc red">Notifications</div>
+                            <div class="arch-svc red">Analytics</div>
+                        </div>
+                    </div>
+
+                    <div class="arch-arrow">&#9660; &#9660; &#9660;</div>
+
+                    <div class="arch-layer">
+                        <div class="arch-layer-label">Data &amp; Messaging</div>
+                        <div class="arch-services">
+                            <div class="arch-svc outline">PostgreSQL</div>
+                            <div class="arch-svc outline">Elasticsearch</div>
+                            <div class="arch-svc outline">Redis</div>
+                            <div class="arch-svc outline">Event Bus</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">03 / 08</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 4 — SERVICE BREAKDOWN
+         ========================================== -->
+    <section class="slide alt" id="slide-4">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Service Map</p>
+                    <h2 class="reveal s2">The Six<br>Services</h2>
+                    <p class="desc reveal s3">Each service has clear domain boundaries, an independent data store, and a dedicated team owner. Services communicate through well-defined APIs and events.</p>
+                </div>
+
+                <div>
+                    <table class="bench-table spot-table reveal s4">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Responsibility</th>
+                                <th>Data Store</th>
+                                <th>Phase</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="bt-service">Auth</td>
+                                <td>User identity, sessions, OAuth, permissions, JWT token issuance</td>
+                                <td>PostgreSQL</td>
+                                <td><span class="pill accent">Phase 1</span></td>
+                            </tr>
+                            <tr>
+                                <td class="bt-service">Billing</td>
+                                <td>Subscriptions, invoicing, payment processing, revenue reporting</td>
+                                <td>PostgreSQL</td>
+                                <td><span class="pill primary">Phase 2</span></td>
+                            </tr>
+                            <tr>
+                                <td class="bt-service">Content</td>
+                                <td>Core domain models, CRUD operations, media management, versioning</td>
+                                <td>PostgreSQL</td>
+                                <td><span class="pill primary">Phase 2</span></td>
+                            </tr>
+                            <tr>
+                                <td class="bt-service">Search</td>
+                                <td>Full-text search, filtering, autocomplete, relevance ranking</td>
+                                <td>Elasticsearch</td>
+                                <td><span class="pill primary">Phase 2</span></td>
+                            </tr>
+                            <tr>
+                                <td class="bt-service">Notifications</td>
+                                <td>Email, SMS, push notifications, in-app alerts, delivery tracking</td>
+                                <td>Redis + PostgreSQL</td>
+                                <td><span class="pill muted">Phase 3</span></td>
+                            </tr>
+                            <tr>
+                                <td class="bt-service">Analytics</td>
+                                <td>Event ingestion, dashboards, usage metrics, cohort analysis</td>
+                                <td>ClickHouse</td>
+                                <td><span class="pill muted">Phase 3</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">04 / 08</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 5 — PHASE 1: FOUNDATION
+         ========================================== -->
+    <section class="slide" id="slide-5">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Phase 1 &mdash; Months 1-3</p>
+                    <h2 class="reveal s2">Foundation &amp;<br>Auth Service</h2>
+                    <p class="desc reveal s3">Establish the infrastructure backbone and extract Auth as the first service. Auth has the clearest boundaries and is a prerequisite for all other services.</p>
+                </div>
+
+                <div class="flow-steps spot-group">
+                    <div class="flow-step spot-item reveal s2">
+                        <div class="fs-num">1</div>
+                        <div>
+                            <div class="fs-title">Deploy API Gateway</div>
+                            <div class="fs-desc">Set up the API gateway with routing rules that initially proxy all traffic to the monolith. This allows incremental migration with instant rollback.</div>
+                        </div>
+                    </div>
+                    <div class="flow-step spot-item reveal s3">
+                        <div class="fs-num">2</div>
+                        <div>
+                            <div class="fs-title">Build CI/CD Pipeline</div>
+                            <div class="fs-desc">Create a shared pipeline template for containerized services. Includes automated testing, canary deployments, and observability integration.</div>
+                        </div>
+                    </div>
+                    <div class="flow-step spot-item reveal s4">
+                        <div class="fs-num">3</div>
+                        <div>
+                            <div class="fs-title">Extract Auth Service</div>
+                            <div class="fs-desc">Migrate user authentication, session management, and JWT issuance. Run in shadow mode alongside the monolith to validate correctness before cutover.</div>
+                        </div>
+                    </div>
+                    <div class="flow-step spot-item reveal s5">
+                        <div class="fs-num">4</div>
+                        <div>
+                            <div class="fs-title">Set Up Event Bus</div>
+                            <div class="fs-desc">Deploy the asynchronous messaging infrastructure. Define the initial event schema contracts that services will use for cross-domain communication.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">05 / 08</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 6 — PHASE 2 & 3
+         ========================================== -->
+    <section class="slide alt" id="slide-6">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Phases 2 &amp; 3 &mdash; Months 4-12</p>
+                    <h2 class="reveal s2">Core Extraction<br>&amp; Completion</h2>
+                    <p class="desc reveal s3">Phase 2 tackles the revenue-critical services in parallel. Phase 3 extracts the remaining domains and decommissions the monolith.</p>
+                </div>
+
+                <div class="icon-cards">
+                    <div class="icon-card reveal s3">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon primary">P2</div>
+                            <div class="icon-card-title">Billing Service (Months 4-6)</div>
+                        </div>
+                        <ul>
+                            <li>Migrate subscription and payment logic with Stripe integration</li>
+                            <li>Dual-write to both systems during transition window</li>
+                            <li>Validate revenue reconciliation before monolith cutover</li>
+                        </ul>
+                    </div>
+
+                    <div class="icon-card reveal s4">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon primary">P2</div>
+                            <div class="icon-card-title">Content &amp; Search (Months 5-8)</div>
+                        </div>
+                        <ul>
+                            <li>Extract core domain models into the Content service</li>
+                            <li>Build Search on Elasticsearch with real-time indexing via events</li>
+                            <li>Strangler fig pattern: route reads to new service, then writes</li>
+                        </ul>
+                    </div>
+
+                    <div class="icon-card reveal s5">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon accent">P3</div>
+                            <div class="icon-card-title">Notifications &amp; Analytics (Months 9-12)</div>
+                        </div>
+                        <ul>
+                            <li>Decouple notification dispatch into event-driven service</li>
+                            <li>Move analytics to ClickHouse for high-throughput event ingestion</li>
+                            <li>Decommission monolith once all traffic is routed to services</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">06 / 08</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 7 — KEY RISKS
+         ========================================== -->
+    <section class="slide" id="slide-7">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Risk Assessment</p>
+                    <h2 class="reveal s2">Key Risks &amp;<br>Mitigations</h2>
+                    <p class="desc reveal s3">Every migration carries risk. We have identified the highest-impact threats and mapped concrete mitigations for each.</p>
+                </div>
+
+                <div>
+                    <div class="risk-card spot-card reveal s3">
+                        <div class="rc-header">
+                            <span class="rc-tag">High</span>
+                            <span class="rc-title">Data Consistency During Dual-Write</span>
+                        </div>
+                        <div class="rc-desc">Running two systems in parallel creates a window where data can diverge. Payment data is especially sensitive to inconsistency.</div>
+                        <div class="rc-maps">
+                            <span class="rc-pill">Reconciliation Jobs</span>
+                            <span class="rc-pill">Idempotent Writes</span>
+                            <span class="rc-pill">Billing</span>
+                        </div>
+                    </div>
+
+                    <div class="risk-card spot-card reveal s4">
+                        <div class="rc-header">
+                            <span class="rc-tag">High</span>
+                            <span class="rc-title">Distributed System Complexity</span>
+                        </div>
+                        <div class="rc-desc">Network failures, partial outages, and cascading timeouts are new failure modes the team has not operated at scale before.</div>
+                        <div class="rc-maps">
+                            <span class="rc-pill">Circuit Breakers</span>
+                            <span class="rc-pill">Retry Policies</span>
+                            <span class="rc-pill">Observability</span>
+                        </div>
+                    </div>
+
+                    <div class="risk-card spot-card reveal s5">
+                        <div class="rc-header">
+                            <span class="rc-tag">Medium</span>
+                            <span class="rc-title">Team Skill Gap</span>
+                        </div>
+                        <div class="rc-desc">Teams are experienced with Django but less so with container orchestration, event-driven patterns, and distributed tracing.</div>
+                        <div class="rc-maps">
+                            <span class="rc-pill">Training Program</span>
+                            <span class="rc-pill">Platform Team Support</span>
+                        </div>
+                    </div>
+
+                    <div class="risk-card spot-card reveal s6">
+                        <div class="rc-header">
+                            <span class="rc-tag">Medium</span>
+                            <span class="rc-title">Feature Velocity Dip</span>
+                        </div>
+                        <div class="rc-desc">Migration work competes with product roadmap. Risk of stakeholder pressure to pause migration if feature delivery slows visibly.</div>
+                        <div class="rc-maps">
+                            <span class="rc-pill">Dedicated Migration Squad</span>
+                            <span class="rc-pill">Parallel Tracks</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">07 / 08</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 8 — NEXT STEPS & METRICS
+         ========================================== -->
+    <section class="slide alt" id="slide-8">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">What's Next</p>
+                    <h2 class="reveal s2">Timeline &amp;<br>Success Metrics</h2>
+                    <p class="desc reveal s3">A 12-month roadmap with clear milestones. We will measure success by deployment speed, system reliability, and team autonomy.</p>
+
+                    <div class="stat-row reveal s4">
+                        <div class="stat-item">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Months</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value accent">6</div>
+                            <div class="stat-label">Services</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">Phases</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="principle-list spot-group">
+                    <div class="pl-item active spot-item reveal s3">
+                        <div class="pl-num">01</div>
+                        <div class="pl-name">Deploy frequency under 30 minutes per service</div>
+                        <span class="pill accent">Target KPI</span>
+                    </div>
+                    <div class="pl-item active spot-item reveal s4">
+                        <div class="pl-num">02</div>
+                        <div class="pl-name">99.95% uptime during and after migration</div>
+                        <span class="pill accent">Target KPI</span>
+                    </div>
+                    <div class="pl-item active spot-item reveal s5">
+                        <div class="pl-num">03</div>
+                        <div class="pl-name">Independent team deploys with no cross-team coordination</div>
+                        <span class="pill primary">Autonomy</span>
+                    </div>
+                    <div class="pl-item active spot-item reveal s6">
+                        <div class="pl-num">04</div>
+                        <div class="pl-name">Zero data loss during dual-write transition periods</div>
+                        <span class="pill primary">Integrity</span>
+                    </div>
+                    <div class="pl-item active spot-item reveal s7">
+                        <div class="pl-num">05</div>
+                        <div class="pl-name">Monolith fully decommissioned by month 12</div>
+                        <span class="pill primary">Milestone</span>
+                    </div>
+                    <div class="pl-item spot-item reveal s7">
+                        <div class="pl-num">06</div>
+                        <div class="pl-name">50% reduction in infrastructure cost per request</div>
+                        <span class="pill muted">Stretch</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">08 / 08</span>
+    </section>
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.dots = document.querySelector('.nav-dots');
+                this.progressBar = document.querySelector('.progress-bar');
+                this.hint = document.querySelector('.keyboard-hint');
+                this.currentSlide = 0;
+
+                this.createDots();
+                this.setupObserver();
+                this.setupKeyboard();
+                this.setupWheel();
+                this.setupTouch();
+                this.updateProgress();
+            }
+
+            createDots() {
+                this.slides.forEach((slide, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+
+                    const heading = slide.querySelector('h1, h2');
+                    const title = heading ? heading.textContent.replace(/\s+/g, ' ').trim() : `Slide ${i + 1}`;
+                    dot.setAttribute('aria-label', `Go to slide ${i + 1}: ${title}`);
+
+                    const label = document.createElement('span');
+                    label.className = 'nav-label';
+                    label.innerHTML = `<span class="nav-label-num">${String(i + 1).padStart(2, '0')}</span>${title}`;
+                    dot.appendChild(label);
+
+                    dot.addEventListener('click', () => this.goTo(i));
+                    this.dots.appendChild(dot);
+                });
+            }
+
+            setupObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = [...this.slides].indexOf(entry.target);
+                            this.currentSlide = idx;
+                            this.updateDots();
+                            this.updateProgress();
+                            if (this.hint) this.hint.classList.add('hidden');
+                        }
+                    });
+                }, { threshold: 0.35 });
+
+                this.slides.forEach(s => observer.observe(s));
+            }
+
+            setupKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault();
+                        this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                });
+            }
+
+            setupWheel() {
+                let throttle = false;
+                document.addEventListener('wheel', (e) => {
+                    if (throttle) return;
+                    throttle = true;
+                    setTimeout(() => throttle = false, 800);
+
+                    if (e.deltaY > 30) {
+                        this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                    } else if (e.deltaY < -30) {
+                        this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                }, { passive: true });
+            }
+
+            setupTouch() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+                document.addEventListener('touchend', (e) => {
+                    const diff = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                        else this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                }, { passive: true });
+            }
+
+            goTo(idx) {
+                this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+            }
+
+            updateDots() {
+                this.dots.querySelectorAll('.nav-dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+
+            updateProgress() {
+                const pct = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = pct + '%';
+            }
+        }
+
+        new SlidePresentation();
+    </script>
+</body>
+</html>

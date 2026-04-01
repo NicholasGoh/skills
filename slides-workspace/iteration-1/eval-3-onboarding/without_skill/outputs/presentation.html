@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome Aboard — New Employee Onboarding</title>
+<style>
+  /* ── Reset & Base ─────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0f0f14; color: #e8e8ed; }
+
+  /* ── Slide container ──────────────────────────────── */
+  .deck { position: relative; width: 100vw; height: 100vh; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    padding: 60px 80px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateY(24px);
+  }
+  .slide.active {
+    opacity: 1; pointer-events: auto; transform: translateY(0);
+  }
+
+  /* ── Typography ───────────────────────────────────── */
+  h1 { font-size: 3rem; font-weight: 700; line-height: 1.15; margin-bottom: 16px; }
+  h2 { font-size: 2.2rem; font-weight: 700; margin-bottom: 28px; }
+  h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: 8px; }
+  p, li { font-size: 1.15rem; line-height: 1.65; color: #c0c0cc; }
+  .subtitle { font-size: 1.35rem; color: #9898ab; margin-bottom: 32px; }
+  .tag { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 12px; border-radius: 20px; margin-bottom: 18px; }
+
+  /* ── Accent colours ───────────────────────────────── */
+  .accent-blue    { color: #6ea8fe; }
+  .accent-green   { color: #7cdeab; }
+  .accent-purple  { color: #b59aff; }
+  .accent-orange  { color: #ffb070; }
+  .accent-pink    { color: #ff8aaf; }
+  .bg-blue   { background: rgba(110,168,254,0.15); color: #6ea8fe; }
+  .bg-green  { background: rgba(124,222,171,0.15); color: #7cdeab; }
+  .bg-purple { background: rgba(181,154,255,0.15); color: #b59aff; }
+  .bg-orange { background: rgba(255,176,112,0.15); color: #ffb070; }
+  .bg-pink   { background: rgba(255,138,175,0.15); color: #ff8aaf; }
+
+  /* ── Cards grid ───────────────────────────────────── */
+  .cards { display: grid; gap: 24px; width: 100%; max-width: 1000px; }
+  .cards-2x2 { grid-template-columns: 1fr 1fr; }
+  .cards-4 { grid-template-columns: repeat(4, 1fr); }
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 28px 24px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+  }
+  .card .icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+  .card p { font-size: 1rem; color: #9898ab; }
+
+  /* ── Checklist ────────────────────────────────────── */
+  .checklist { list-style: none; width: 100%; max-width: 720px; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 1.15rem;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .step-num {
+    flex-shrink: 0; width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; font-weight: 700; font-size: 0.95rem;
+    background: rgba(110,168,254,0.15); color: #6ea8fe;
+  }
+  .step-text strong { color: #e8e8ed; }
+
+  /* ── Contact table ────────────────────────────────── */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 860px; }
+  .contact-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 22px 24px;
+  }
+  .contact-card .role { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .contact-card .name { font-size: 1.1rem; font-weight: 600; color: #e8e8ed; }
+  .contact-card .desc { font-size: 0.95rem; color: #9898ab; margin-top: 4px; }
+
+  /* ── Navigation ───────────────────────────────────── */
+  .nav {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 16px;
+    background: rgba(20,20,30,0.85); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 40px; padding: 10px 20px; z-index: 100;
+  }
+  .nav button {
+    background: rgba(255,255,255,0.08); border: none; color: #c0c0cc;
+    width: 38px; height: 38px; border-radius: 50%;
+    font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .nav button:hover { background: rgba(255,255,255,0.16); }
+  .nav button:disabled { opacity: 0.3; cursor: default; }
+  .nav .indicator { font-size: 0.85rem; color: #7a7a8e; min-width: 48px; text-align: center; }
+
+  /* ── Dots ──────────────────────────────────────────── */
+  .dots { display: flex; gap: 6px; }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    transition: background 0.3s, transform 0.3s;
+  }
+  .dot.active { background: #6ea8fe; transform: scale(1.3); }
+
+  /* ── Decorative gradient blobs ─────────────────────── */
+  .blob {
+    position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12; pointer-events: none;
+  }
+  .blob-1 { width: 500px; height: 500px; background: #6ea8fe; top: -120px; right: -100px; }
+  .blob-2 { width: 400px; height: 400px; background: #b59aff; bottom: -80px; left: -60px; }
+
+  /* ── Title slide specifics ─────────────────────────── */
+  .title-slide h1 { font-size: 3.6rem; background: linear-gradient(135deg, #6ea8fe 0%, #b59aff 50%, #ff8aaf 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+  /* ── Tool logos (inline SVG icons as backgrounds) ──── */
+  .tool-icon {
+    width: 48px; height: 48px; border-radius: 12px; margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 700;
+  }
+  .tool-slack    { background: linear-gradient(135deg, #e01e5a, #ecb22e, #2eb67d, #36c5f0); color: #fff; }
+  .tool-linear   { background: linear-gradient(135deg, #5e6ad2, #8b5cf6); color: #fff; }
+  .tool-github   { background: #24292e; color: #fff; }
+  .tool-figma    { background: linear-gradient(135deg, #f24e1e, #a259ff, #1abcfe); color: #fff; }
+
+  /* ── Responsive ────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .slide { padding: 32px 24px; }
+    h1 { font-size: 2.2rem; }
+    h2 { font-size: 1.6rem; }
+    .cards-2x2, .cards-4, .contact-grid { grid-template-columns: 1fr; }
+    .title-slide h1 { font-size: 2.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ============================================== -->
+  <!-- SLIDE 1 — Title -->
+  <!-- ============================================== -->
+  <div class="slide title-slide active" data-slide="0">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <span class="tag bg-blue">New Employee Onboarding</span>
+    <h1>Welcome to the Team</h1>
+    <p class="subtitle">Everything you need to hit the ground running on your first week.</p>
+    <p style="margin-top: 24px; font-size: 0.95rem; color: #7a7a8e;">Use arrow keys or the controls below to navigate</p>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- SLIDE 2 — Company Mission -->
+  <!-- ============================================== -->
+  <div class="slide" data-slide="1">
+    <div class="blob blob-1"></div>
+    <span class="tag bg-purple">Who We Are</span>
+    <h2>Our Mission</h2>
+    <div style="max-width: 700px; text-align: center;">
+      <p style="font-size: 1.6rem; color: #e8e8ed; font-weight: 300; line-height: 1.6; margin-bottom: 32px;">
+        "To build products that empower teams to do their best work — through clarity, collaboration, and thoughtful design."
+      </p>
+      <div style="display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; margin-top: 16px;">
+        <div style="text-align: center;">
+          <span style="font-size: 2rem; display: block; margin-bottom: 6px;" class="accent-blue">Clarity</span>
+          <p style="font-size: 0.95rem;">Transparent goals, honest communication</p>
+        </div>
+        <div style="text-align: center;">
+          <span style="font-size: 2rem; display: block; margin-bottom: 6px;" class="accent-green">Collaboration</span>
+          <p style="font-size: 0.95rem;">Cross-functional teamwork by default</p>
+        </div>
+        <div style="text-align: center;">
+          <span style="font-size: 2rem; display: block; margin-bottom: 6px;" class="accent-purple">Impact</span>
+          <p style="font-size: 0.95rem;">Outcomes over output, always</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- SLIDE 3 — Team Structure -->
+  <!-- ============================================== -->
+  <div class="slide" data-slide="2">
+    <div class="blob blob-2"></div>
+    <span class="tag bg-green">Organization</span>
+    <h2>Team Structure</h2>
+    <div class="cards cards-2x2">
+      <div class="card">
+        <span class="icon">&#128736;</span>
+        <h3 class="accent-blue">Engineering</h3>
+        <p>Builds and maintains the product. Owns backend services, frontend applications, infrastructure, and developer tooling. Ships weekly.</p>
+      </div>
+      <div class="card">
+        <span class="icon">&#127919;</span>
+        <h3 class="accent-purple">Product</h3>
+        <p>Defines the roadmap and prioritizes what we build next. Works closely with customers to understand needs and translate them into specs.</p>
+      </div>
+      <div class="card">
+        <span class="icon">&#127912;</span>
+        <h3 class="accent-pink">Design</h3>
+        <p>Shapes the user experience from research to pixel-perfect UI. Runs usability testing and maintains the design system.</p>
+      </div>
+      <div class="card">
+        <span class="icon">&#128200;</span>
+        <h3 class="accent-orange">Sales</h3>
+        <p>Drives revenue through inbound and outbound motions. Partners with Product to relay market insights and customer feedback.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- SLIDE 4 — First Week Checklist -->
+  <!-- ============================================== -->
+  <div class="slide" data-slide="3">
+    <div class="blob blob-1"></div>
+    <span class="tag bg-orange">Your First Week</span>
+    <h2>First Week Checklist</h2>
+    <ul class="checklist">
+      <li>
+        <span class="step-num">1</span>
+        <span class="step-text"><strong>Set up your accounts</strong><br>Activate your email, Slack, GitHub, Linear, and Figma invitations. Enable two-factor authentication on every service.</span>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <span class="step-text"><strong>Meet your onboarding buddy</strong><br>You have been paired with a teammate who will answer day-to-day questions and help you get oriented during the first two weeks.</span>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <span class="step-text"><strong>Complete HR and compliance training</strong><br>Finish the required modules in our learning platform: security awareness, code of conduct, and benefits enrollment.</span>
+      </li>
+      <li>
+        <span class="step-num">4</span>
+        <span class="step-text"><strong>Clone repos and run the dev environment</strong><br>Follow the README in our monorepo to get a local environment running. Ask in <em>#eng-help</em> if you get stuck.</span>
+      </li>
+      <li>
+        <span class="step-num">5</span>
+        <span class="step-text"><strong>Ship your first small PR</strong><br>Pick a "good first issue" from Linear, make the change, and open a pull request. Your buddy will review it.</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- SLIDE 5 — Tools We Use -->
+  <!-- ============================================== -->
+  <div class="slide" data-slide="4">
+    <div class="blob blob-2"></div>
+    <span class="tag bg-blue">Tooling</span>
+    <h2>Tools We Use</h2>
+    <div class="cards cards-4">
+      <div class="card" style="text-align: center;">
+        <div class="tool-icon tool-slack" style="margin: 0 auto 14px;">S</div>
+        <h3>Slack</h3>
+        <p>Real-time communication, team channels, quick questions, and social chats.</p>
+      </div>
+      <div class="card" style="text-align: center;">
+        <div class="tool-icon tool-linear" style="margin: 0 auto 14px;">L</div>
+        <h3>Linear</h3>
+        <p>Issue tracking and project management. All tasks, bugs, and sprints live here.</p>
+      </div>
+      <div class="card" style="text-align: center;">
+        <div class="tool-icon tool-github" style="margin: 0 auto 14px;">G</div>
+        <h3>GitHub</h3>
+        <p>Source code, pull requests, CI/CD pipelines, and code review workflows.</p>
+      </div>
+      <div class="card" style="text-align: center;">
+        <div class="tool-icon tool-figma" style="margin: 0 auto 14px;">F</div>
+        <h3>Figma</h3>
+        <p>Design files, prototypes, and the component library. Comment directly on designs.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- SLIDE 6 — Who to Contact -->
+  <!-- ============================================== -->
+  <div class="slide" data-slide="5">
+    <div class="blob blob-1"></div>
+    <span class="tag bg-pink">People</span>
+    <h2>Who to Contact</h2>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="role accent-blue">Engineering Questions</div>
+        <div class="name">Your Team Lead</div>
+        <div class="desc">Architecture decisions, code review escalations, and technical guidance. Reach out in <strong>#eng-help</strong> on Slack.</div>
+      </div>
+      <div class="contact-card">
+        <div class="role accent-purple">Product &amp; Roadmap</div>
+        <div class="name">Product Manager</div>
+        <div class="desc">Feature priorities, requirements clarification, and customer context. Check <strong>#product</strong> on Slack.</div>
+      </div>
+      <div class="contact-card">
+        <div class="role accent-pink">Design &amp; UX</div>
+        <div class="name">Design Lead</div>
+        <div class="desc">Design system questions, asset requests, and UX feedback. Visit <strong>#design</strong> on Slack.</div>
+      </div>
+      <div class="contact-card">
+        <div class="role accent-orange">HR &amp; Benefits</div>
+        <div class="name">People Operations</div>
+        <div class="desc">Payroll, time off, benefits, and workplace policies. Email <strong>people@company.com</strong> or ask in <strong>#people-ops</strong>.</div>
+      </div>
+      <div class="contact-card">
+        <div class="role accent-green">IT &amp; Access</div>
+        <div class="name">IT Support</div>
+        <div class="desc">Account access issues, hardware requests, VPN setup, and security. Use <strong>#it-support</strong> on Slack.</div>
+      </div>
+      <div class="contact-card">
+        <div class="role" style="color: #e8e8ed;">General / Onboarding</div>
+        <div class="name">Your Onboarding Buddy</div>
+        <div class="desc">Anything and everything during your first two weeks. They are here to help you feel at home.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- SLIDE 7 — Closing -->
+  <!-- ============================================== -->
+  <div class="slide" data-slide="6">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <span class="tag bg-green">Let's Go</span>
+    <h1 style="font-size: 3rem; background: linear-gradient(135deg, #7cdeab, #6ea8fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">You're All Set</h1>
+    <p class="subtitle" style="max-width: 560px; text-align: center;">We are excited to have you here. Don't hesitate to ask questions — there are no silly ones. Welcome aboard!</p>
+    <div style="margin-top: 32px; display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+      <div style="padding: 12px 24px; border-radius: 12px; background: rgba(110,168,254,0.12); color: #6ea8fe; font-weight: 600;">#welcome</div>
+      <div style="padding: 12px 24px; border-radius: 12px; background: rgba(124,222,171,0.12); color: #7cdeab; font-weight: 600;">#eng-help</div>
+      <div style="padding: 12px 24px; border-radius: 12px; background: rgba(181,154,255,0.12); color: #b59aff; font-weight: 600;">#people-ops</div>
+      <div style="padding: 12px 24px; border-radius: 12px; background: rgba(255,176,112,0.12); color: #ffb070; font-weight: 600;">#it-support</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Navigation bar ──────────────────────────────── -->
+<nav class="nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8592;</button>
+  <div class="dots" id="dots"></div>
+  <span class="indicator" id="indicator">1 / 7</span>
+  <button id="nextBtn" aria-label="Next slide">&#8594;</button>
+</nav>
+
+<script>
+(function () {
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let current = 0;
+
+  const prevBtn  = document.getElementById('prevBtn');
+  const nextBtn  = document.getElementById('nextBtn');
+  const indicator = document.getElementById('indicator');
+  const dotsContainer = document.getElementById('dots');
+
+  // Build dot indicators
+  for (let i = 0; i < totalSlides; i++) {
+    const dot = document.createElement('span');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    dot.style.cursor = 'pointer';
+    dotsContainer.appendChild(dot);
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= totalSlides) return;
+    slides[current].classList.remove('active');
+    dotsContainer.children[current].classList.remove('active');
+    current = index;
+    slides[current].classList.add('active');
+    dotsContainer.children[current].classList.add('active');
+    indicator.textContent = (current + 1) + ' / ' + totalSlides;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === totalSlides - 1;
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goTo(current + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goTo(current - 1);
+  });
+
+  // Initialize
+  goTo(0);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,60 @@
+{
+  "eval_id": 3,
+  "eval_name": "employee-onboarding",
+  "run_type": "without_skill",
+  "pass_rate": 0.3,
+  "passed": 3,
+  "total": 10,
+  "expectations": [
+    {
+      "text": "Loads Figtree and DM Sans fonts from Google Fonts",
+      "passed": false,
+      "evidence": "Figtree: missing, DM Sans: missing"
+    },
+    {
+      "text": "Uses navy (#1A1F5D or similar dark blue) as primary heading color",
+      "passed": false,
+      "evidence": "Navy (#1A1F5D or --brand-navy): not found"
+    },
+    {
+      "text": "Uses scroll-snap-type for slide-to-slide navigation",
+      "passed": false,
+      "evidence": "scroll-snap-type: not found"
+    },
+    {
+      "text": "Uses reveal/fade-in animations with staggered delays",
+      "passed": false,
+      "evidence": "reveal class: missing, stagger delays: missing"
+    },
+    {
+      "text": "Implements spotlight hover on at least one component group",
+      "passed": false,
+      "evidence": "spotlight classes: missing, dim pattern: missing"
+    },
+    {
+      "text": "Includes a fixed progress bar",
+      "passed": false,
+      "evidence": "progress bar: not found"
+    },
+    {
+      "text": "Includes navigation dots",
+      "passed": false,
+      "evidence": "nav dots: not found"
+    },
+    {
+      "text": "Mentions all 4 teams (Engineering, Product, Design, Sales) and all 4 tools (Slack, Linear, GitHub, Figma)",
+      "passed": true,
+      "evidence": "Found: Engineering, Product, Design, Sales, Slack, Linear, GitHub, Figma"
+    },
+    {
+      "text": "Has at least 5 distinct slides",
+      "passed": true,
+      "evidence": "Found 7 slides (minimum 5 required)"
+    },
+    {
+      "text": "Uses font-weight 300 for body text",
+      "passed": true,
+      "evidence": "font-weight 300: found"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "eval_id": 2,
+  "eval_name": "microservices-migration",
+  "prompt": "Make slides explaining our microservices migration. We're moving from a Django monolith to 6 services: auth, billing, notifications, search, content, analytics. Show the migration phases, key risks, and the target architecture.",
+  "assertions": [
+    {
+      "id": "uses-figtree-dm-sans",
+      "text": "Loads Figtree and DM Sans fonts from Google Fonts",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-brand-navy",
+      "text": "Uses navy (#1A1F5D or similar dark blue) as primary heading color",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-scroll-snap",
+      "text": "Uses scroll-snap-type for slide-to-slide navigation",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-reveal-animations",
+      "text": "Uses reveal/fade-in animations with staggered delays",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-spotlight-hover",
+      "text": "Implements spotlight hover on at least one component group",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-progress-bar",
+      "text": "Includes a fixed progress bar",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-nav-dots",
+      "text": "Includes navigation dots",
+      "type": "programmatic"
+    },
+    {
+      "id": "content-accuracy",
+      "text": "Mentions all 6 services (auth, billing, notifications, search, content, analytics) and Django monolith",
+      "type": "programmatic"
+    },
+    {
+      "id": "min-slides",
+      "text": "Has at least 5 distinct slides",
+      "type": "programmatic"
+    },
+    {
+      "id": "light-font-weight",
+      "text": "Uses font-weight 300 for body text",
+      "type": "programmatic"
+    }
+  ]
+}

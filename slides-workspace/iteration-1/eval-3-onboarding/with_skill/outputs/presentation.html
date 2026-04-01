@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Employee Onboarding</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        /* ===========================================
+           THEME VARIABLES
+           =========================================== */
+        :root {
+            --brand-navy: #1A1F5D;
+            --brand-red: #E10B0A;
+            --brand-dark-red: #C20202;
+            --brand-red-50: #FCE7E7;
+            --brand-black: #262626;
+            --brand-muted: #686879;
+            --brand-light-gray: #F6F6F6;
+            --brand-white: #FFFFFF;
+            --brand-grey-50: #E7E7E7;
+            --brand-grey-100: #D1D1D1;
+            --border: #ECECF0;
+            --bg-header: #EFF2FF;
+            --font-heading: 'Figtree', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --slide-padding: clamp(2.5rem, 6vw, 5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ===========================================
+           BASE
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--brand-white);
+            color: var(--brand-black);
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           SLIDE CONTAINER
+           =========================================== */
+        .slide {
+            min-height: 100vh;
+            padding: var(--slide-padding);
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-inner {
+            width: 100%;
+            max-width: 1060px;
+        }
+
+        /* Alternating background */
+        .slide.alt { background: var(--brand-light-gray); }
+
+        /* ===========================================
+           REVEAL ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .s1 { transition-delay: 0.1s; }
+        .s2 { transition-delay: 0.2s; }
+        .s3 { transition-delay: 0.3s; }
+        .s4 { transition-delay: 0.4s; }
+        .s5 { transition-delay: 0.5s; }
+        .s6 { transition-delay: 0.6s; }
+        .s7 { transition-delay: 0.7s; }
+
+        /* ===========================================
+           SPOTLIGHT HOVER
+           =========================================== */
+
+        /* Generic: .spot-group on container, .spot-item on children */
+        .spot-item {
+            transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+        }
+
+        .spot-group:hover .spot-item {
+            opacity: 0.35;
+        }
+
+        .spot-group:hover .spot-item:hover {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        /* Table rows: .spot-table on <table> */
+        .spot-table tbody tr {
+            transition: opacity 0.25s ease, background-color 0.25s ease;
+        }
+
+        .spot-table:hover tbody tr {
+            opacity: 0.35;
+        }
+
+        .spot-table:hover tbody tr:hover {
+            opacity: 1;
+            background: var(--bg-header);
+        }
+
+        /* Cards: .spot-card on each card */
+        .spot-card {
+            transition: opacity 0.25s ease, transform 0.2s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .spot-card:not(:hover):has(~ .spot-card:hover),
+        .spot-card:hover ~ .spot-card {
+            opacity: 0.35;
+        }
+
+        .spot-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--brand-navy);
+            box-shadow: 0 4px 16px rgba(26, 31, 93, 0.08);
+        }
+
+        /* Sidebar rows: .spot-group on container, .spot-row on children */
+        .spot-row {
+            transition: opacity 0.25s ease, padding-left 0.2s ease;
+            border-radius: 4px;
+            margin: 0 -0.5em;
+            padding-left: 0.5em;
+            padding-right: 0.5em;
+        }
+
+        .spot-group:hover .spot-row {
+            opacity: 0.35;
+        }
+
+        .spot-group:hover .spot-row:hover {
+            opacity: 1;
+            background: var(--bg-header);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spot-item, .spot-card, .spot-row,
+            .spot-table tbody tr {
+                transition: opacity 0.15s ease;
+                transform: none !important;
+            }
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: var(--brand-red);
+            width: 0%;
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAV DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand-grey-100);
+            border: none;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            padding: 0;
+            position: relative;
+        }
+
+        .nav-dot:focus, .nav-dot:focus-visible,
+        .nav-dot:active, .nav-dot:hover {
+            outline: none;
+            box-shadow: none;
+            background: var(--brand-grey-100);
+        }
+
+        .nav-dot.active,
+        .nav-dot.active:hover,
+        .nav-dot.active:focus {
+            background: var(--brand-red);
+            transform: scale(1.4);
+        }
+
+        .nav-dot .nav-label {
+            position: absolute;
+            right: calc(100% + 10px);
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            font-family: var(--font-heading);
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--brand-navy);
+            background: var(--brand-white);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.35em 0.6em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .nav-dot .nav-label .nav-label-num {
+            color: var(--brand-muted);
+            margin-right: 0.4em;
+        }
+
+        .nav-dot:hover .nav-label {
+            opacity: 1;
+        }
+
+        /* ===========================================
+           SLIDE NUMBER & KEYBOARD HINT
+           =========================================== */
+        .slide-num {
+            position: absolute;
+            bottom: var(--slide-padding);
+            right: var(--slide-padding);
+            font-size: 0.65rem;
+            color: var(--brand-grey-100);
+            letter-spacing: 0.05em;
+        }
+
+        .keyboard-hint {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: var(--brand-grey-100);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: opacity 0.5s;
+        }
+
+        .keyboard-hint.hidden { opacity: 0; pointer-events: none; }
+
+        /* ===========================================
+           SHARED COMPONENTS
+           =========================================== */
+
+        /* Tag line: red dot + uppercase label */
+        .tag-line {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2vh;
+        }
+
+        .tag-line .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand-red);
+        }
+
+        .tag-line .text {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+        }
+
+        /* Section label */
+        .section-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+            margin-bottom: 1vh;
+        }
+
+        /* Headings */
+        h1 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+            color: var(--brand-navy);
+            margin-bottom: 1.5vh;
+        }
+
+        h2 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            line-height: 1.2;
+            color: var(--brand-navy);
+            margin-bottom: 2vh;
+        }
+
+        h3 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+            color: var(--brand-black);
+            margin-bottom: 0.3em;
+        }
+
+        .desc {
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+            font-weight: 300;
+            color: var(--brand-muted);
+            line-height: 1.7;
+        }
+
+        /* Links */
+        a.ref-link {
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px solid var(--brand-grey-100);
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        a.ref-link:hover {
+            color: var(--brand-navy);
+            border-bottom-color: var(--brand-navy);
+        }
+
+        /* Pill badges */
+        .pill {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.3em 0.6em;
+            border-radius: 3px;
+        }
+
+        .pill.primary { color: var(--brand-navy); background: var(--bg-header); }
+        .pill.accent { color: var(--brand-dark-red); background: var(--brand-red-50); }
+        .pill.muted { color: var(--brand-muted); background: transparent; border: 1px solid var(--border); }
+
+        /* ===========================================
+           COMPONENT-SPECIFIC CSS
+           =========================================== */
+
+        /* Title Grid */
+        .title-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .title-subtitle {
+            max-width: 460px;
+            margin-bottom: 3vh;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        /* Sidebar Panel */
+        .sidebar {
+            background: var(--brand-light-gray);
+            border-radius: 10px;
+            padding: 2em 1.8em;
+        }
+
+        .sidebar-title {
+            font-family: var(--font-heading);
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+            margin-bottom: 1.5em;
+        }
+
+        .p-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.65em 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .p-row:last-child { border-bottom: none; }
+
+        .p-row .p-label {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--brand-black);
+        }
+
+        .p-row.dimmed .p-label { color: var(--brand-muted); }
+
+        /* Flow Steps */
+        .flow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .flow-step {
+            display: grid;
+            grid-template-columns: 40px 1fr;
+            gap: 1rem;
+            padding: 1.2em 0;
+            border-bottom: 1px solid var(--border);
+            align-items: start;
+        }
+
+        .flow-step:last-child { border-bottom: none; }
+
+        .flow-step .fs-num {
+            font-family: var(--font-heading);
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--brand-red);
+            background: var(--brand-white);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+        }
+
+        .flow-step .fs-title {
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--brand-black);
+            margin-bottom: 0.2em;
+        }
+
+        .flow-step .fs-desc {
+            font-size: 0.78rem;
+            font-weight: 300;
+            color: var(--brand-muted);
+            line-height: 1.6;
+        }
+
+        /* Icon Cards */
+        .icon-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .icon-card {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1.2rem 1.4rem;
+            background: var(--brand-white);
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+        }
+
+        .icon-card:hover {
+            border-color: var(--brand-navy);
+            box-shadow: 0 3px 12px rgba(26, 31, 93, 0.07);
+        }
+
+        .icon-cards:hover .icon-card:not(:hover) {
+            opacity: 0.4;
+        }
+
+        .icon-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .icon-card-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .icon-card-icon.primary { background: var(--bg-header); color: var(--brand-navy); }
+        .icon-card-icon.accent { background: var(--brand-red-50); color: var(--brand-dark-red); }
+        .icon-card-icon.success { background: #E8F5E9; color: #2E7D32; }
+        .icon-card-icon.muted { background: var(--brand-grey-50); color: var(--brand-muted); }
+
+        .icon-card-title {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--brand-navy);
+        }
+
+        .icon-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .icon-card li {
+            font-size: 0.75rem;
+            color: var(--brand-muted);
+            line-height: 1.6;
+            padding-left: 1em;
+            position: relative;
+        }
+
+        .icon-card li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--brand-grey-100);
+        }
+
+        /* Data Table */
+        .bench-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .bench-table th {
+            font-family: var(--font-heading);
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+            background: var(--brand-light-gray);
+            padding: 0.7em 0.8em;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .bench-table td {
+            font-size: 0.72rem;
+            font-weight: 300;
+            color: var(--brand-black);
+            padding: 0.8em;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            line-height: 1.5;
+        }
+
+        .bench-table tr:last-child td { border-bottom: none; }
+
+        .bench-table .bt-name {
+            font-family: var(--font-heading);
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+            color: var(--brand-navy);
+        }
+
+        /* Numbered List (Rules) */
+        .rule-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .rule-item {
+            display: grid;
+            grid-template-columns: 28px 1fr;
+            gap: 1rem;
+            padding: 1.2em 0;
+            border-bottom: 1px solid var(--border);
+            align-items: start;
+        }
+
+        .rule-item:last-child { border-bottom: none; }
+
+        .rule-item .ri-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-heading);
+            font-size: 0.65rem;
+            font-weight: 600;
+            background: var(--brand-white);
+            border: 1px solid var(--border);
+            color: var(--brand-red);
+        }
+
+        .slide.alt .rule-item .ri-icon { background: var(--brand-white); }
+
+        .rule-item .ri-title {
+            font-family: var(--font-heading);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--brand-black);
+            margin-bottom: 0.2em;
+        }
+
+        .rule-item .ri-desc {
+            font-size: 0.78rem;
+            font-weight: 300;
+            color: var(--brand-muted);
+            line-height: 1.6;
+        }
+
+        /* Stat Callouts */
+        .stat-row {
+            display: flex;
+            gap: 3rem;
+            margin: 2vh 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            color: var(--brand-navy);
+            line-height: 1.1;
+        }
+
+        .stat-value.accent { color: var(--brand-red); }
+
+        .stat-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+            margin-top: 0.5em;
+        }
+
+        /* ===========================================
+           RESPONSIVE
+           =========================================== */
+        @media (max-width: 900px) {
+            .slide-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .nav-dots, .keyboard-hint { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                transition: opacity 0.3s ease;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar"></div>
+    <nav class="nav-dots"></nav>
+    <div class="keyboard-hint">Arrow keys or scroll to navigate</div>
+
+    <!-- =========================================
+         SLIDE 1 — TITLE
+         ========================================= -->
+    <section class="slide" id="slide-1">
+        <div class="slide-inner">
+            <div class="title-grid slide-grid">
+                <div>
+                    <div class="tag-line reveal s1">
+                        <span class="dot"></span>
+                        <span class="text">New Employee Onboarding</span>
+                    </div>
+                    <h1 class="reveal s2">Welcome to<br>the Team</h1>
+                    <p class="title-subtitle desc reveal s3">Everything you need to know to get started, meet your colleagues, and hit the ground running in your first week.</p>
+                </div>
+
+                <div class="sidebar reveal s5 spot-group">
+                    <div class="sidebar-title">Quick Overview</div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Company Mission</span>
+                        <span class="pill primary">Core</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Team Structure</span>
+                        <span class="pill primary">4 Teams</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">First Week Checklist</span>
+                        <span class="pill accent">5 Steps</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Tools &amp; Systems</span>
+                        <span class="pill primary">4 Tools</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Key Contacts</span>
+                        <span class="pill muted">Directory</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">01 / 08</span>
+    </section>
+
+    <!-- =========================================
+         SLIDE 2 — COMPANY MISSION
+         ========================================= -->
+    <section class="slide alt" id="slide-2">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Our Purpose</p>
+                    <h2 class="reveal s2">Company<br>Mission</h2>
+                    <p class="desc reveal s3">Our mission drives every decision we make, from the products we build to the way we treat each other.</p>
+                </div>
+
+                <div>
+                    <div class="rule-list spot-group">
+                        <div class="rule-item spot-item reveal s2">
+                            <div class="ri-icon">&#9733;</div>
+                            <div>
+                                <div class="ri-title">Mission Statement</div>
+                                <div class="ri-desc">We build technology that empowers teams to do their best work. Our products simplify complexity so our customers can focus on what matters most.</div>
+                            </div>
+                        </div>
+                        <div class="rule-item spot-item reveal s3">
+                            <div class="ri-icon">&#9650;</div>
+                            <div>
+                                <div class="ri-title">Vision</div>
+                                <div class="ri-desc">To become the standard for how modern teams collaborate, plan, and ship great products together.</div>
+                            </div>
+                        </div>
+                        <div class="rule-item spot-item reveal s4">
+                            <div class="ri-icon">1</div>
+                            <div>
+                                <div class="ri-title">Customer Obsession</div>
+                                <div class="ri-desc">Every feature, every fix, every decision starts with the question: does this make our customers' lives better?</div>
+                            </div>
+                        </div>
+                        <div class="rule-item spot-item reveal s5">
+                            <div class="ri-icon">2</div>
+                            <div>
+                                <div class="ri-title">Radical Transparency</div>
+                                <div class="ri-desc">We share context widely, default to open communication, and trust everyone to make good decisions with full information.</div>
+                            </div>
+                        </div>
+                        <div class="rule-item spot-item reveal s6">
+                            <div class="ri-icon">3</div>
+                            <div>
+                                <div class="ri-title">Bias for Action</div>
+                                <div class="ri-desc">We ship fast, learn from real usage, and iterate quickly. Progress over perfection.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">02 / 08</span>
+    </section>
+
+    <!-- =========================================
+         SLIDE 3 — TEAM STRUCTURE
+         ========================================= -->
+    <section class="slide" id="slide-3">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Organization</p>
+                    <h2 class="reveal s2">Team<br>Structure</h2>
+                    <p class="desc reveal s3">We are organized into four cross-functional teams, each with a clear domain and shared accountability for outcomes.</p>
+                </div>
+
+                <div class="icon-cards">
+                    <div class="icon-card reveal s3">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon primary">&#9000;</div>
+                            <div class="icon-card-title">Engineering</div>
+                        </div>
+                        <ul>
+                            <li>Builds and maintains our core platform and infrastructure</li>
+                            <li>Owns code quality, testing, deployments, and uptime</li>
+                            <li>Works in two-week sprints with daily standups</li>
+                        </ul>
+                    </div>
+
+                    <div class="icon-card reveal s4">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon accent">&#9881;</div>
+                            <div class="icon-card-title">Product</div>
+                        </div>
+                        <ul>
+                            <li>Defines roadmap, priorities, and success metrics</li>
+                            <li>Conducts user research and competitive analysis</li>
+                            <li>Bridges customer needs with engineering execution</li>
+                        </ul>
+                    </div>
+
+                    <div class="icon-card reveal s5">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon success">&#9998;</div>
+                            <div class="icon-card-title">Design</div>
+                        </div>
+                        <ul>
+                            <li>Owns user experience, visual design, and design system</li>
+                            <li>Runs usability testing and interaction prototyping</li>
+                            <li>Collaborates closely with Product and Engineering</li>
+                        </ul>
+                    </div>
+
+                    <div class="icon-card reveal s6">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon muted">&#9734;</div>
+                            <div class="icon-card-title">Sales</div>
+                        </div>
+                        <ul>
+                            <li>Drives revenue through new business and account expansion</li>
+                            <li>Manages customer relationships and renewal cycles</li>
+                            <li>Provides frontline feedback to Product and Engineering</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">03 / 08</span>
+    </section>
+
+    <!-- =========================================
+         SLIDE 4 — FIRST WEEK CHECKLIST
+         ========================================= -->
+    <section class="slide alt" id="slide-4">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Getting Started</p>
+                    <h2 class="reveal s2">Your First<br>Week</h2>
+                    <p class="desc reveal s3">Follow these five steps during your first week to get set up, meet the team, and start contributing.</p>
+                </div>
+
+                <div class="flow-steps spot-group">
+                    <div class="flow-step spot-item reveal s2">
+                        <div class="fs-num">1</div>
+                        <div>
+                            <div class="fs-title">Complete IT Setup</div>
+                            <div class="fs-desc">Activate your company email, set up two-factor authentication, and install required software. IT will provide your laptop and credentials on Day 1.</div>
+                        </div>
+                    </div>
+                    <div class="flow-step spot-item reveal s3">
+                        <div class="fs-num">2</div>
+                        <div>
+                            <div class="fs-title">Join Your Team Channels</div>
+                            <div class="fs-desc">Join your team's Slack channels, the #general and #announcements channels, and any project-specific channels your manager recommends.</div>
+                        </div>
+                    </div>
+                    <div class="flow-step spot-item reveal s4">
+                        <div class="fs-num">3</div>
+                        <div>
+                            <div class="fs-title">Meet Your Onboarding Buddy</div>
+                            <div class="fs-desc">You will be paired with an onboarding buddy who has been here at least six months. Schedule a 30-minute coffee chat in your first two days.</div>
+                        </div>
+                    </div>
+                    <div class="flow-step spot-item reveal s5">
+                        <div class="fs-num">4</div>
+                        <div>
+                            <div class="fs-title">Attend Orientation Sessions</div>
+                            <div class="fs-desc">Attend the company overview session on Tuesday, the tools walkthrough on Wednesday, and your team-specific onboarding on Thursday.</div>
+                        </div>
+                    </div>
+                    <div class="flow-step spot-item reveal s6">
+                        <div class="fs-num">5</div>
+                        <div>
+                            <div class="fs-title">Ship Your First Contribution</div>
+                            <div class="fs-desc">By Friday, aim to complete a small starter task assigned by your manager. This could be a bug fix, a design review, a document update, or a prospect outreach.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">04 / 08</span>
+    </section>
+
+    <!-- =========================================
+         SLIDE 5 — TOOLS WE USE
+         ========================================= -->
+    <section class="slide" id="slide-5">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Tooling</p>
+                    <h2 class="reveal s2">Tools<br>We Use</h2>
+                    <p class="desc reveal s3">These four tools form the backbone of how we communicate, plan, build, and design. You will use them daily.</p>
+                </div>
+
+                <div class="icon-cards">
+                    <div class="icon-card reveal s3">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon primary">#</div>
+                            <div class="icon-card-title">Slack</div>
+                        </div>
+                        <ul>
+                            <li>Primary communication hub for all teams</li>
+                            <li>Use threads to keep conversations organized</li>
+                            <li>Check #announcements daily for company updates</li>
+                        </ul>
+                    </div>
+
+                    <div class="icon-card reveal s4">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon accent">&#9654;</div>
+                            <div class="icon-card-title">Linear</div>
+                        </div>
+                        <ul>
+                            <li>Project management and issue tracking</li>
+                            <li>All tasks, bugs, and features are tracked here</li>
+                            <li>Update your assigned issues daily with status</li>
+                        </ul>
+                    </div>
+
+                    <div class="icon-card reveal s5">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon success">&#9671;</div>
+                            <div class="icon-card-title">GitHub</div>
+                        </div>
+                        <ul>
+                            <li>Source code hosting and version control</li>
+                            <li>All changes go through pull request review</li>
+                            <li>CI/CD pipelines run automatically on every push</li>
+                        </ul>
+                    </div>
+
+                    <div class="icon-card reveal s6">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon muted">&#9679;</div>
+                            <div class="icon-card-title">Figma</div>
+                        </div>
+                        <ul>
+                            <li>Design files, prototypes, and design system</li>
+                            <li>Comment directly on designs for feedback</li>
+                            <li>Access shared libraries for brand assets</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">05 / 08</span>
+    </section>
+
+    <!-- =========================================
+         SLIDE 6 — WHO TO CONTACT
+         ========================================= -->
+    <section class="slide alt" id="slide-6">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Support</p>
+                    <h2 class="reveal s2">Who to<br>Contact</h2>
+                    <p class="desc reveal s3">Knowing who to reach out to saves time. Here is a quick guide to the right person for common questions.</p>
+                </div>
+
+                <div>
+                    <table class="bench-table spot-table reveal s4">
+                        <thead>
+                            <tr>
+                                <th>Topic</th>
+                                <th>Contact</th>
+                                <th>Channel</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="bt-name">Laptop, VPN &amp; Access</td>
+                                <td>IT Helpdesk</td>
+                                <td>#it-support on Slack</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-name">Benefits &amp; Payroll</td>
+                                <td>People Ops Team</td>
+                                <td>#people-ops on Slack</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-name">Project Questions</td>
+                                <td>Your Direct Manager</td>
+                                <td>1:1 or team channel</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-name">Codebase &amp; PRs</td>
+                                <td>Engineering Lead</td>
+                                <td>#engineering on Slack</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-name">Design Files &amp; Brand</td>
+                                <td>Design Lead</td>
+                                <td>#design on Slack</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-name">Product Roadmap</td>
+                                <td>Product Manager</td>
+                                <td>#product on Slack</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-name">Sales Process &amp; CRM</td>
+                                <td>Sales Lead</td>
+                                <td>#sales on Slack</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-name">General Questions</td>
+                                <td>Onboarding Buddy</td>
+                                <td>Direct message</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">06 / 08</span>
+    </section>
+
+    <!-- =========================================
+         SLIDE 7 — COMMUNICATION NORMS
+         ========================================= -->
+    <section class="slide" id="slide-7">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Culture</p>
+                    <h2 class="reveal s2">Communication<br>Norms</h2>
+                    <p class="desc reveal s3">How we work together matters as much as what we build. These norms keep us aligned and respectful of each other's time.</p>
+                </div>
+
+                <div class="rule-list spot-group">
+                    <div class="rule-item spot-item reveal s2">
+                        <div class="ri-icon">1</div>
+                        <div>
+                            <div class="ri-title">Default to Public Channels</div>
+                            <div class="ri-desc">Share context in team channels instead of DMs so knowledge is accessible to everyone. Use threads to keep things tidy.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s3">
+                        <div class="ri-icon">2</div>
+                        <div>
+                            <div class="ri-title">Write It Down</div>
+                            <div class="ri-desc">Decisions, meeting outcomes, and context should be documented. If it is not written down, it did not happen.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s4">
+                        <div class="ri-icon">3</div>
+                        <div>
+                            <div class="ri-title">Respect Focus Time</div>
+                            <div class="ri-desc">Check calendar status before pinging someone. Mornings are generally reserved for deep work across all teams.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s5">
+                        <div class="ri-icon">4</div>
+                        <div>
+                            <div class="ri-title">Ask Questions Early</div>
+                            <div class="ri-desc">No question is too small. It is always better to ask and clarify than to spend hours going down the wrong path.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">07 / 08</span>
+    </section>
+
+    <!-- =========================================
+         SLIDE 8 — WELCOME & NEXT STEPS
+         ========================================= -->
+    <section class="slide alt" id="slide-8">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Let's Go</p>
+                    <h2 class="reveal s2">You're<br>Ready</h2>
+                    <p class="desc reveal s3">You have everything you need to get started. We are glad you are here and excited to see what you will build with us.</p>
+                </div>
+
+                <div>
+                    <div class="stat-row reveal s3">
+                        <div class="stat-item">
+                            <div class="stat-value">4</div>
+                            <div class="stat-label">Teams</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value accent">5</div>
+                            <div class="stat-label">First-Week Steps</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">4</div>
+                            <div class="stat-label">Core Tools</div>
+                        </div>
+                    </div>
+
+                    <div class="flow-steps spot-group" style="margin-top: 2rem;">
+                        <div class="flow-step spot-item reveal s4">
+                            <div class="fs-num">&#10003;</div>
+                            <div>
+                                <div class="fs-title">Complete IT Setup Today</div>
+                                <div class="fs-desc">Get your laptop, email, and VPN access configured before your first orientation session.</div>
+                            </div>
+                        </div>
+                        <div class="flow-step spot-item reveal s5">
+                            <div class="fs-num">&#10003;</div>
+                            <div>
+                                <div class="fs-title">Meet Your Buddy This Week</div>
+                                <div class="fs-desc">Reach out to your onboarding buddy and schedule your first coffee chat by Wednesday.</div>
+                            </div>
+                        </div>
+                        <div class="flow-step spot-item reveal s6">
+                            <div class="fs-num">&#10003;</div>
+                            <div>
+                                <div class="fs-title">Ship Something by Friday</div>
+                                <div class="fs-desc">Talk to your manager about a good starter task. Small wins build momentum.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">08 / 08</span>
+    </section>
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.dots = document.querySelector('.nav-dots');
+                this.progressBar = document.querySelector('.progress-bar');
+                this.hint = document.querySelector('.keyboard-hint');
+                this.currentSlide = 0;
+
+                this.createDots();
+                this.setupObserver();
+                this.setupKeyboard();
+                this.setupWheel();
+                this.setupTouch();
+                this.updateProgress();
+            }
+
+            createDots() {
+                this.slides.forEach((slide, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+
+                    const heading = slide.querySelector('h1, h2');
+                    const title = heading ? heading.textContent.replace(/\s+/g, ' ').trim() : `Slide ${i + 1}`;
+                    dot.setAttribute('aria-label', `Go to slide ${i + 1}: ${title}`);
+
+                    const label = document.createElement('span');
+                    label.className = 'nav-label';
+                    label.innerHTML = `<span class="nav-label-num">${String(i + 1).padStart(2, '0')}</span>${title}`;
+                    dot.appendChild(label);
+
+                    dot.addEventListener('click', () => this.goTo(i));
+                    this.dots.appendChild(dot);
+                });
+            }
+
+            setupObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = [...this.slides].indexOf(entry.target);
+                            this.currentSlide = idx;
+                            this.updateDots();
+                            this.updateProgress();
+                            if (this.hint) this.hint.classList.add('hidden');
+                        }
+                    });
+                }, { threshold: 0.35 });
+
+                this.slides.forEach(s => observer.observe(s));
+            }
+
+            setupKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault();
+                        this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                });
+            }
+
+            setupWheel() {
+                let throttle = false;
+                document.addEventListener('wheel', (e) => {
+                    if (throttle) return;
+                    throttle = true;
+                    setTimeout(() => throttle = false, 800);
+
+                    if (e.deltaY > 30) {
+                        this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                    } else if (e.deltaY < -30) {
+                        this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                }, { passive: true });
+            }
+
+            setupTouch() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+                document.addEventListener('touchend', (e) => {
+                    const diff = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                        else this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                }, { passive: true });
+            }
+
+            goTo(idx) {
+                this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+            }
+
+            updateDots() {
+                this.dots.querySelectorAll('.nav-dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+
+            updateProgress() {
+                const pct = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = pct + '%';
+            }
+        }
+
+        new SlidePresentation();
+    </script>
+</body>
+</html>

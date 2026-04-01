@@ -1,0 +1,60 @@
+{
+  "eval_id": 2,
+  "eval_name": "microservices-migration",
+  "run_type": "without_skill",
+  "pass_rate": 0.2,
+  "passed": 2,
+  "total": 10,
+  "expectations": [
+    {
+      "text": "Loads Figtree and DM Sans fonts from Google Fonts",
+      "passed": false,
+      "evidence": "Figtree: missing, DM Sans: missing"
+    },
+    {
+      "text": "Uses navy (#1A1F5D or similar dark blue) as primary heading color",
+      "passed": false,
+      "evidence": "Navy (#1A1F5D or --brand-navy): not found"
+    },
+    {
+      "text": "Uses scroll-snap-type for slide-to-slide navigation",
+      "passed": false,
+      "evidence": "scroll-snap-type: not found"
+    },
+    {
+      "text": "Uses reveal/fade-in animations with staggered delays",
+      "passed": false,
+      "evidence": "reveal class: missing, stagger delays: missing"
+    },
+    {
+      "text": "Implements spotlight hover on at least one component group",
+      "passed": false,
+      "evidence": "spotlight classes: missing, dim pattern: missing"
+    },
+    {
+      "text": "Includes a fixed progress bar",
+      "passed": false,
+      "evidence": "progress bar: not found"
+    },
+    {
+      "text": "Includes navigation dots",
+      "passed": false,
+      "evidence": "nav dots: not found"
+    },
+    {
+      "text": "Mentions all 6 services (auth, billing, notifications, search, content, analytics) and Django monolith",
+      "passed": true,
+      "evidence": "Found: auth service, billing service, notifications, search service, content service, analytics service, Django"
+    },
+    {
+      "text": "Has at least 5 distinct slides",
+      "passed": true,
+      "evidence": "Found 20 slides (minimum 5 required)"
+    },
+    {
+      "text": "Uses font-weight 300 for body text",
+      "passed": false,
+      "evidence": "font-weight 300: not found"
+    }
+  ]
+}

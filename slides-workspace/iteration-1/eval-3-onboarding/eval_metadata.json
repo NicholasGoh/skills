@@ -1,0 +1,57 @@
+{
+  "eval_id": 3,
+  "eval_name": "employee-onboarding",
+  "prompt": "Create a new employee onboarding presentation. Cover: company mission, team structure (Engineering, Product, Design, Sales — 4 teams), first week checklist (5 steps), tools we use (Slack, Linear, GitHub, Figma), and who to contact for what.",
+  "assertions": [
+    {
+      "id": "uses-figtree-dm-sans",
+      "text": "Loads Figtree and DM Sans fonts from Google Fonts",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-brand-navy",
+      "text": "Uses navy (#1A1F5D or similar dark blue) as primary heading color",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-scroll-snap",
+      "text": "Uses scroll-snap-type for slide-to-slide navigation",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-reveal-animations",
+      "text": "Uses reveal/fade-in animations with staggered delays",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-spotlight-hover",
+      "text": "Implements spotlight hover on at least one component group",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-progress-bar",
+      "text": "Includes a fixed progress bar",
+      "type": "programmatic"
+    },
+    {
+      "id": "has-nav-dots",
+      "text": "Includes navigation dots",
+      "type": "programmatic"
+    },
+    {
+      "id": "content-accuracy",
+      "text": "Mentions all 4 teams (Engineering, Product, Design, Sales) and all 4 tools (Slack, Linear, GitHub, Figma)",
+      "type": "programmatic"
+    },
+    {
+      "id": "min-slides",
+      "text": "Has at least 5 distinct slides",
+      "type": "programmatic"
+    },
+    {
+      "id": "light-font-weight",
+      "text": "Uses font-weight 300 for body text",
+      "type": "programmatic"
+    }
+  ]
+}

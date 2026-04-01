@@ -1,0 +1,60 @@
+{
+  "eval_id": 1,
+  "eval_name": "quarterly-business-review",
+  "run_type": "without_skill",
+  "pass_rate": 0.2,
+  "passed": 2,
+  "total": 10,
+  "expectations": [
+    {
+      "text": "Loads Figtree and DM Sans fonts from Google Fonts",
+      "passed": false,
+      "evidence": "Figtree: missing, DM Sans: missing"
+    },
+    {
+      "text": "Uses navy (#1A1F5D or similar dark blue) as primary heading color",
+      "passed": false,
+      "evidence": "Navy (#1A1F5D or --brand-navy): not found"
+    },
+    {
+      "text": "Uses scroll-snap-type on html/body for slide-to-slide navigation",
+      "passed": false,
+      "evidence": "scroll-snap-type: not found"
+    },
+    {
+      "text": "Uses reveal/fade-in animations with staggered delays on content elements",
+      "passed": false,
+      "evidence": "reveal class: missing, stagger delays: missing"
+    },
+    {
+      "text": "Implements spotlight hover (siblings dim on hover) on at least one component group",
+      "passed": false,
+      "evidence": "spotlight classes: missing, dim pattern: missing"
+    },
+    {
+      "text": "Includes a fixed progress bar that tracks slide position",
+      "passed": false,
+      "evidence": "progress bar: not found"
+    },
+    {
+      "text": "Includes navigation dots for slide jumping",
+      "passed": false,
+      "evidence": "nav dots: not found"
+    },
+    {
+      "text": "Includes the key data points: $4.2M revenue, 18% YoY, 2 products, 3 risks, APAC expansion",
+      "passed": true,
+      "evidence": "Found: $4.2M, 18%, 2 products, 3 risks, APAC"
+    },
+    {
+      "text": "Has at least 5 distinct slides (sections with min-height: 100vh or similar)",
+      "passed": true,
+      "evidence": "Found 9 slides (minimum 5 required)"
+    },
+    {
+      "text": "Uses font-weight 300 for body/description text (the refined, airy feel)",
+      "passed": false,
+      "evidence": "font-weight 300: not found"
+    }
+  ]
+}

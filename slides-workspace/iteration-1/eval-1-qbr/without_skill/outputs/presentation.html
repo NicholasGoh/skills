@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q1 2026 Quarterly Business Review</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-primary: #0f1117;
+    --bg-slide: #16181f;
+    --bg-card: #1e2029;
+    --accent: #4f8cff;
+    --accent-light: #7aadff;
+    --green: #34d399;
+    --green-bg: rgba(52, 211, 153, 0.12);
+    --red: #f87171;
+    --red-bg: rgba(248, 113, 113, 0.1);
+    --yellow: #fbbf24;
+    --yellow-bg: rgba(251, 191, 36, 0.1);
+    --purple: #a78bfa;
+    --purple-bg: rgba(167, 139, 250, 0.1);
+    --text: #e8eaed;
+    --text-muted: #9ca3af;
+    --border: #2a2d37;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* Slide container */
+  .deck {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateX(40px);
+    background: var(--bg-primary);
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+
+  .slide-inner {
+    max-width: 1100px;
+    width: 100%;
+  }
+
+  /* Typography */
+  h1 { font-size: 3rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.03em; }
+  h2 { font-size: 2.2rem; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 2rem; }
+  h3 { font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-light); margin-bottom: 0.5rem; }
+  p { font-size: 1.15rem; line-height: 1.7; color: var(--text-muted); }
+
+  /* Title slide */
+  .title-slide { text-align: center; }
+  .title-slide h1 { font-size: 3.6rem; margin-bottom: 1rem; }
+  .title-slide .subtitle {
+    font-size: 1.3rem;
+    color: var(--accent-light);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+  .title-slide .date {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-top: 1.5rem;
+  }
+  .title-divider {
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--purple));
+    border-radius: 2px;
+    margin: 1.5rem auto;
+  }
+
+  /* Grid layouts */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+
+  /* Cards */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.8rem;
+    transition: transform 0.2s ease;
+  }
+  .card:hover { transform: translateY(-2px); }
+  .card h3 { margin-bottom: 0.4rem; }
+  .card .metric {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+  .card .metric-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+  .card .change {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+  }
+  .change.up { color: var(--green); background: var(--green-bg); }
+  .change.down { color: var(--red); background: var(--red-bg); }
+
+  /* Revenue chart */
+  .chart-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem;
+    margin-top: 1.5rem;
+  }
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.2rem;
+    height: 220px;
+    padding-top: 1rem;
+  }
+  .bar-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+  }
+  .bar {
+    width: 100%;
+    max-width: 60px;
+    border-radius: 8px 8px 0 0;
+    position: relative;
+    transition: height 0.8s ease;
+  }
+  .bar.current { background: linear-gradient(180deg, var(--accent), #3366cc); }
+  .bar.previous { background: linear-gradient(180deg, #444, #333); }
+  .bar-value {
+    position: absolute;
+    top: -1.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .bar-label {
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* Product cards */
+  .product-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .product-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--purple));
+  }
+  .product-card h4 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+  }
+  .product-card p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .product-badge {
+    display: inline-block;
+    background: var(--purple-bg);
+    color: var(--purple);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.25rem 0.7rem;
+    border-radius: 6px;
+    margin-bottom: 0.8rem;
+  }
+
+  /* Risk items */
+  .risk-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem 1.8rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.2rem;
+  }
+  .risk-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+  .risk-high .risk-icon { background: var(--red-bg); }
+  .risk-medium .risk-icon { background: var(--yellow-bg); }
+  .risk-item h4 { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .risk-item p { font-size: 0.9rem; line-height: 1.5; }
+  .risk-severity {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+  }
+  .severity-high { background: var(--red-bg); color: var(--red); }
+  .severity-medium { background: var(--yellow-bg); color: var(--yellow); }
+
+  /* Priority items */
+  .priority-list { display: flex; flex-direction: column; gap: 1.2rem; }
+  .priority-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .priority-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .priority-item h4 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.25rem; }
+  .priority-item p { font-size: 0.9rem; }
+
+  /* Agenda */
+  .agenda-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .agenda-list li {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.15rem;
+    color: var(--text);
+    padding: 1rem 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .agenda-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  /* End slide */
+  .end-slide { text-align: center; }
+  .end-slide h1 { font-size: 2.8rem; margin-bottom: 1rem; }
+  .end-slide p { font-size: 1.2rem; max-width: 550px; margin: 0 auto; }
+
+  /* Progress bar */
+  .progress {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--purple));
+    transition: width 0.4s ease;
+    z-index: 100;
+  }
+
+  /* Slide counter */
+  .slide-counter {
+    position: fixed;
+    bottom: 1rem;
+    right: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    z-index: 100;
+    font-weight: 500;
+  }
+
+  /* Navigation hint */
+  .nav-hint {
+    position: fixed;
+    bottom: 1rem;
+    left: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    z-index: 100;
+    opacity: 0.6;
+  }
+
+  /* Risks list */
+  .risks-list { display: flex; flex-direction: column; gap: 1rem; }
+
+  /* Summary grid */
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 0.5rem; }
+  .summary-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+  }
+  .summary-card h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-light);
+    margin-bottom: 0.8rem;
+  }
+  .summary-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .summary-card li {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    padding-left: 1.2rem;
+    position: relative;
+  }
+  .summary-card li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- Slide 1: Title -->
+  <div class="slide active" data-slide="0">
+    <div class="slide-inner title-slide">
+      <h3>Quarterly Business Review</h3>
+      <h1>Q1 2026</h1>
+      <div class="title-divider"></div>
+      <p class="subtitle">Performance, Launches, and the Road Ahead</p>
+      <p class="date">January - March 2026</p>
+    </div>
+  </div>
+
+  <!-- Slide 2: Agenda -->
+  <div class="slide" data-slide="1">
+    <div class="slide-inner">
+      <h3>Overview</h3>
+      <h2>Agenda</h2>
+      <ul class="agenda-list">
+        <li><span class="agenda-num">1</span> Financial Performance</li>
+        <li><span class="agenda-num">2</span> Revenue Trend</li>
+        <li><span class="agenda-num">3</span> Product Launches</li>
+        <li><span class="agenda-num">4</span> Key Risks</li>
+        <li><span class="agenda-num">5</span> Q2 Priorities</li>
+        <li><span class="agenda-num">6</span> Summary</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Slide 3: Financial Performance -->
+  <div class="slide" data-slide="2">
+    <div class="slide-inner">
+      <h3>Financial Performance</h3>
+      <h2>Q1 2026 at a Glance</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3>Revenue</h3>
+          <div class="metric">$4.2M</div>
+          <div class="metric-label">Total Q1 Revenue</div>
+          <div class="change up">+18% YoY</div>
+        </div>
+        <div class="card">
+          <h3>Products Launched</h3>
+          <div class="metric">2</div>
+          <div class="metric-label">New Products Shipped</div>
+          <div class="change up">On Track</div>
+        </div>
+        <div class="card">
+          <h3>Q1 vs. Q1 2025</h3>
+          <div class="metric">$3.56M</div>
+          <div class="metric-label">Prior Year Q1 Revenue</div>
+          <div class="change up">+$640K</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4: Revenue Trend Chart -->
+  <div class="slide" data-slide="3">
+    <div class="slide-inner">
+      <h3>Financial Performance</h3>
+      <h2>Revenue Trend (Trailing 4 Quarters)</h2>
+      <div class="chart-container">
+        <div class="bar-chart">
+          <div class="bar-group">
+            <div class="bar previous" style="height: 55%;">
+              <span class="bar-value">$2.9M</span>
+            </div>
+            <span class="bar-label">Q2 2025</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar previous" style="height: 62%;">
+              <span class="bar-value">$3.2M</span>
+            </div>
+            <span class="bar-label">Q3 2025</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar previous" style="height: 72%;">
+              <span class="bar-value">$3.7M</span>
+            </div>
+            <span class="bar-label">Q4 2025</span>
+          </div>
+          <div class="bar-group">
+            <div class="bar current" style="height: 85%;">
+              <span class="bar-value" style="color: var(--accent-light);">$4.2M</span>
+            </div>
+            <span class="bar-label" style="color: var(--accent-light); font-weight: 600;">Q1 2026</span>
+          </div>
+        </div>
+      </div>
+      <p style="margin-top: 1rem; font-size: 0.95rem;">Consistent quarter-over-quarter growth driven by strong product adoption and customer expansion.</p>
+    </div>
+  </div>
+
+  <!-- Slide 5: Product Launches -->
+  <div class="slide" data-slide="4">
+    <div class="slide-inner">
+      <h3>Product</h3>
+      <h2>New Product Launches</h2>
+      <div class="grid-2">
+        <div class="product-card">
+          <span class="product-badge">Product 1</span>
+          <h4>Platform Analytics Suite</h4>
+          <p>End-to-end analytics dashboard providing real-time insights, custom reporting, and predictive analytics for enterprise customers. Launched in February with strong early adoption.</p>
+          <div style="margin-top: 1rem;">
+            <span class="change up" style="font-size: 0.8rem;">Positive early traction</span>
+          </div>
+        </div>
+        <div class="product-card">
+          <span class="product-badge">Product 2</span>
+          <h4>API Integration Hub</h4>
+          <p>Unified API management platform enabling seamless third-party integrations, webhook orchestration, and developer tooling. Shipped in March to accelerate ecosystem growth.</p>
+          <div style="margin-top: 1rem;">
+            <span class="change up" style="font-size: 0.8rem;">Developer adoption growing</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 6: Key Risks -->
+  <div class="slide" data-slide="5">
+    <div class="slide-inner">
+      <h3>Risk Assessment</h3>
+      <h2>Key Risks</h2>
+      <div class="risks-list">
+        <div class="risk-item risk-high">
+          <div class="risk-icon">1</div>
+          <div>
+            <h4>Supply Chain Delays <span class="risk-severity severity-high">High</span></h4>
+            <p>Ongoing disruptions in key supplier networks may delay hardware-dependent deliverables. Mitigation: diversifying supplier base and increasing buffer inventory by 20%.</p>
+          </div>
+        </div>
+        <div class="risk-item risk-medium">
+          <div class="risk-icon">2</div>
+          <div>
+            <h4>Competitor Pricing Pressure <span class="risk-severity severity-medium">Medium</span></h4>
+            <p>Recent aggressive pricing from competitors risks margin compression and slower deal velocity. Mitigation: emphasizing differentiated value proposition and flexible pricing tiers.</p>
+          </div>
+        </div>
+        <div class="risk-item risk-medium">
+          <div class="risk-icon">3</div>
+          <div>
+            <h4>Talent Retention <span class="risk-severity severity-medium">Medium</span></h4>
+            <p>Elevated attrition risk in engineering due to competitive market conditions. Mitigation: revised compensation bands, accelerated equity refresh, and expanded growth programs.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 7: Q2 Priorities -->
+  <div class="slide" data-slide="6">
+    <div class="slide-inner">
+      <h3>Looking Ahead</h3>
+      <h2>Q2 2026 Priorities</h2>
+      <div class="priority-list">
+        <div class="priority-item">
+          <div class="priority-number">1</div>
+          <div>
+            <h4>Expand into APAC</h4>
+            <p>Establish regional presence with initial focus on Japan and Australia. Build partnerships, localize product, and target first enterprise customers in the region.</p>
+          </div>
+        </div>
+        <div class="priority-item">
+          <div class="priority-number">2</div>
+          <div>
+            <h4>Hire 15 Engineers</h4>
+            <p>Scale the engineering team to support v3.0 development and APAC expansion. Focus on senior backend, infrastructure, and full-stack roles across multiple time zones.</p>
+          </div>
+        </div>
+        <div class="priority-item">
+          <div class="priority-number">3</div>
+          <div>
+            <h4>Ship v3.0</h4>
+            <p>Deliver the next major platform release featuring a redesigned architecture, enhanced API capabilities, and enterprise-grade security and compliance features.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 8: Summary -->
+  <div class="slide" data-slide="7">
+    <div class="slide-inner">
+      <h3>Recap</h3>
+      <h2>Q1 Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <h4>Wins</h4>
+          <ul>
+            <li>Revenue hit $4.2M, up 18% year-over-year</li>
+            <li>Shipped 2 new products on schedule</li>
+            <li>Strong quarter-over-quarter growth trajectory</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Risks to Watch</h4>
+          <ul>
+            <li>Supply chain delays impacting timelines</li>
+            <li>Competitor pricing pressure on margins</li>
+            <li>Talent retention in a competitive market</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Q2 Focus Areas</h4>
+          <ul>
+            <li>APAC market expansion (Japan, Australia)</li>
+            <li>Hire 15 engineers to scale the team</li>
+            <li>Ship v3.0 platform release</li>
+          </ul>
+        </div>
+        <div class="summary-card">
+          <h4>Key Ask</h4>
+          <ul>
+            <li>Approve headcount plan for 15 new engineers</li>
+            <li>Greenlight APAC go-to-market budget</li>
+            <li>Align on v3.0 feature scope and timeline</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 9: Thank You -->
+  <div class="slide" data-slide="8">
+    <div class="slide-inner end-slide">
+      <h3>Q1 2026 QBR</h3>
+      <h1>Thank You</h1>
+      <div class="title-divider"></div>
+      <p>Questions, feedback, and discussion welcome.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="slide-counter" id="counter">1 / 9</div>
+<div class="nav-hint">Arrow keys or click to navigate</div>
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  function goTo(index) {
+    if (index < 0 || index >= total) return;
+    slides[current].classList.remove('active');
+    slides[current].style.transform = index > current ? 'translateX(-40px)' : 'translateX(40px)';
+    current = index;
+    slides[current].style.transform = 'translateX(0)';
+    slides[current].classList.add('active');
+    document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prev(); }
+    if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (e.clientX > window.innerWidth / 2) next();
+    else prev();
+  });
+
+  // Touch support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', function(e) { touchStartX = e.changedTouches[0].screenX; });
+  document.addEventListener('touchend', function(e) {
+    const diff = e.changedTouches[0].screenX - touchStartX;
+    if (Math.abs(diff) > 50) { diff < 0 ? next() : prev(); }
+  });
+
+  // Initialize progress
+  document.getElementById('progress').style.width = (1 / total * 100) + '%';
+})();
+</script>
+
+</body>
+</html>

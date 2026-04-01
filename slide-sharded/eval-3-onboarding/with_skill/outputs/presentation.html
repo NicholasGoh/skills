@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Employee Onboarding</title>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <style>
+        /* ===========================================
+           THEME VARIABLES
+           =========================================== */
+        :root {
+            --brand-navy: #1A1F5D;
+            --brand-red: #E10B0A;
+            --brand-dark-red: #C20202;
+            --brand-red-50: #FCE7E7;
+            --brand-black: #262626;
+            --brand-muted: #686879;
+            --brand-light-gray: #F6F6F6;
+            --brand-white: #FFFFFF;
+            --brand-grey-50: #E7E7E7;
+            --brand-grey-100: #D1D1D1;
+            --border: #ECECF0;
+            --bg-header: #EFF2FF;
+            --font-heading: 'Figtree', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --slide-padding: clamp(2.5rem, 6vw, 5rem);
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ===========================================
+           BASE
+           =========================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--brand-white);
+            color: var(--brand-black);
+            overflow-x: hidden;
+        }
+
+        /* ===========================================
+           SLIDE CONTAINER
+           =========================================== */
+        .slide {
+            min-height: 100vh;
+            padding: var(--slide-padding);
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-inner {
+            width: 100%;
+            max-width: 1060px;
+        }
+
+        /* Alternating background */
+        .slide.alt { background: var(--brand-light-gray); }
+
+        /* ===========================================
+           REVEAL ANIMATIONS
+           Elements with class "reveal" fade up when
+           their parent slide becomes visible.
+           Add s1-s7 for staggered delay.
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.7s var(--ease-out-expo), transform 0.7s var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .s1 { transition-delay: 0.1s; }
+        .s2 { transition-delay: 0.2s; }
+        .s3 { transition-delay: 0.3s; }
+        .s4 { transition-delay: 0.4s; }
+        .s5 { transition-delay: 0.5s; }
+        .s6 { transition-delay: 0.6s; }
+        .s7 { transition-delay: 0.7s; }
+
+        /* ===========================================
+           SPOTLIGHT HOVER
+           Parent dims all children; hovered child
+           restores. Four variants for different
+           component types.
+           =========================================== */
+
+        /* Generic: .spot-group on container, .spot-item on children */
+        .spot-item {
+            transition: opacity 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+        }
+
+        .spot-group:hover .spot-item {
+            opacity: 0.35;
+        }
+
+        .spot-group:hover .spot-item:hover {
+            opacity: 1;
+            transform: translateX(4px);
+        }
+
+        /* Table rows: .spot-table on <table> */
+        .spot-table tbody tr {
+            transition: opacity 0.25s ease, background-color 0.25s ease;
+        }
+
+        .spot-table:hover tbody tr {
+            opacity: 0.35;
+        }
+
+        .spot-table:hover tbody tr:hover {
+            opacity: 1;
+            background: var(--bg-header);
+        }
+
+        /* Cards: .spot-card on each card (uses :has() for sibling dim) */
+        .spot-card {
+            transition: opacity 0.25s ease, transform 0.2s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .spot-card:not(:hover):has(~ .spot-card:hover),
+        .spot-card:hover ~ .spot-card {
+            opacity: 0.35;
+        }
+
+        .spot-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--brand-navy);
+            box-shadow: 0 4px 16px rgba(26, 31, 93, 0.08);
+        }
+
+        /* Sidebar rows: .spot-group on container, .spot-row on children */
+        .spot-row {
+            transition: opacity 0.25s ease, padding-left 0.2s ease;
+            border-radius: 4px;
+            margin: 0 -0.5em;
+            padding-left: 0.5em;
+            padding-right: 0.5em;
+        }
+
+        .spot-group:hover .spot-row {
+            opacity: 0.35;
+        }
+
+        .spot-group:hover .spot-row:hover {
+            opacity: 1;
+            background: var(--bg-header);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spot-item, .spot-card, .spot-row,
+            .spot-table tbody tr {
+                transition: opacity 0.15s ease;
+                transform: none !important;
+            }
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: var(--brand-red);
+            width: 0%;
+            z-index: 100;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAV DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand-grey-100);
+            border: none;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+            padding: 0;
+            position: relative;
+        }
+
+        .nav-dot:focus, .nav-dot:focus-visible,
+        .nav-dot:active, .nav-dot:hover {
+            outline: none;
+            box-shadow: none;
+            background: var(--brand-grey-100);
+        }
+
+        .nav-dot.active,
+        .nav-dot.active:hover,
+        .nav-dot.active:focus {
+            background: var(--brand-red);
+            transform: scale(1.4);
+        }
+
+        .nav-dot .nav-label {
+            position: absolute;
+            right: calc(100% + 10px);
+            top: 50%;
+            transform: translateY(-50%);
+            white-space: nowrap;
+            font-family: var(--font-heading);
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--brand-navy);
+            background: var(--brand-white);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 0.35em 0.6em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .nav-dot .nav-label .nav-label-num {
+            color: var(--brand-muted);
+            margin-right: 0.4em;
+        }
+
+        .nav-dot:hover .nav-label {
+            opacity: 1;
+        }
+
+        /* ===========================================
+           SLIDE NUMBER & KEYBOARD HINT
+           =========================================== */
+        .slide-num {
+            position: absolute;
+            bottom: var(--slide-padding);
+            right: var(--slide-padding);
+            font-size: 0.65rem;
+            color: var(--brand-grey-100);
+            letter-spacing: 0.05em;
+        }
+
+        .keyboard-hint {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: var(--brand-grey-100);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: opacity 0.5s;
+        }
+
+        .keyboard-hint.hidden { opacity: 0; pointer-events: none; }
+
+        /* ===========================================
+           SHARED COMPONENTS
+           =========================================== */
+
+        /* Tag line: red dot + uppercase label */
+        .tag-line {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2vh;
+        }
+
+        .tag-line .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--brand-red);
+        }
+
+        .tag-line .text {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+        }
+
+        /* Section label */
+        .section-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--brand-muted);
+            margin-bottom: 1vh;
+        }
+
+        /* Headings */
+        h1 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.15;
+            letter-spacing: -0.01em;
+            color: var(--brand-navy);
+            margin-bottom: 1.5vh;
+        }
+
+        h2 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            line-height: 1.2;
+            color: var(--brand-navy);
+            margin-bottom: 2vh;
+        }
+
+        h3 {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+            color: var(--brand-black);
+            margin-bottom: 0.3em;
+        }
+
+        .desc {
+            font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+            font-weight: 300;
+            color: var(--brand-muted);
+            line-height: 1.7;
+        }
+
+        /* Links */
+        a.ref-link {
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px solid var(--brand-grey-100);
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        a.ref-link:hover {
+            color: var(--brand-navy);
+            border-bottom-color: var(--brand-navy);
+        }
+
+        /* Pill badges */
+        .pill {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.3em 0.6em;
+            border-radius: 3px;
+        }
+
+        .pill.primary { color: var(--brand-navy); background: var(--bg-header); }
+        .pill.accent { color: var(--brand-dark-red); background: var(--brand-red-50); }
+        .pill.muted { color: var(--brand-muted); background: transparent; border: 1px solid var(--border); }
+
+        /* Title Slide */
+.title-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 4rem;
+    align-items: center;
+}
+
+.title-subtitle {
+    max-width: 460px;
+    margin-bottom: 3vh;
+}
+
+.method-row {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.method-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.method-item .icon {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.method-item .icon.primary { background: var(--brand-navy); }
+.method-item .icon.accent { background: var(--brand-red); }
+
+.method-item .m-label {
+    font-size: 0.75rem;
+    color: var(--brand-black);
+    font-weight: 500;
+}
+
+.method-item .m-desc {
+    font-size: 0.7rem;
+    color: var(--brand-muted);
+    font-weight: 300;
+}
+
+/* Two-Column with Sidebar */
+.content-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+
+/* Sidebar Panel */
+.sidebar {
+    background: var(--brand-light-gray);
+    border-radius: 10px;
+    padding: 2em 1.8em;
+}
+
+.sidebar-title {
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--brand-muted);
+    margin-bottom: 1.5em;
+}
+
+.p-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65em 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.p-row:last-child { border-bottom: none; }
+
+.p-row .p-label {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--brand-black);
+}
+
+.p-row.dimmed .p-label { color: var(--brand-muted); }
+
+/* Numbered List */
+.rule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.rule-item {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 1rem;
+    padding: 1.2em 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+}
+
+.rule-item:last-child { border-bottom: none; }
+
+.rule-item .ri-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 600;
+    background: var(--brand-white);
+    border: 1px solid var(--border);
+    color: var(--brand-red);
+}
+
+.slide.alt .rule-item .ri-icon { background: var(--brand-white); }
+
+.rule-item .ri-title {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--brand-black);
+    margin-bottom: 0.2em;
+}
+
+.rule-item .ri-desc {
+    font-size: 0.78rem;
+    font-weight: 300;
+    color: var(--brand-muted);
+    line-height: 1.6;
+}
+
+/* Flow Steps */
+.flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.flow-step {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 1rem;
+    padding: 1.2em 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+}
+
+.flow-step:last-child { border-bottom: none; }
+
+.flow-step .fs-num {
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--brand-red);
+    background: var(--brand-white);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+}
+
+.flow-step .fs-title {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--brand-black);
+    margin-bottom: 0.2em;
+}
+
+.flow-step .fs-desc {
+    font-size: 0.78rem;
+    font-weight: 300;
+    color: var(--brand-muted);
+    line-height: 1.6;
+}
+
+/* Icon Cards */
+.icon-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.icon-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.2rem 1.4rem;
+    background: var(--brand-white);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+
+.icon-card:hover {
+    border-color: var(--brand-navy);
+    box-shadow: 0 3px 12px rgba(26, 31, 93, 0.07);
+}
+
+.icon-cards:hover .icon-card:not(:hover) {
+    opacity: 0.4;
+}
+
+.icon-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+}
+
+.icon-card-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+.icon-card-icon.primary { background: var(--bg-header); color: var(--brand-navy); }
+.icon-card-icon.accent { background: var(--brand-red-50); color: var(--brand-dark-red); }
+.icon-card-icon.success { background: #E8F5E9; color: #2E7D32; }
+
+.icon-card-title {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--brand-navy);
+}
+
+.icon-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.icon-card li {
+    font-size: 0.75rem;
+    color: var(--brand-muted);
+    line-height: 1.6;
+    padding-left: 1em;
+    position: relative;
+}
+
+.icon-card li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--brand-grey-100);
+}
+
+/* Data Table */
+.bench-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.bench-table th {
+    font-family: var(--font-heading);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brand-muted);
+    background: var(--brand-light-gray);
+    padding: 0.7em 0.8em;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.bench-table td {
+    font-size: 0.72rem;
+    font-weight: 300;
+    color: var(--brand-black);
+    padding: 0.8em;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+}
+
+.bench-table tr:last-child td { border-bottom: none; }
+
+.bench-table .bt-dataset {
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.bench-table .bt-source {
+    font-size: 0.65rem;
+    color: var(--brand-muted);
+    white-space: nowrap;
+}
+
+
+        /* ===========================================
+           RESPONSIVE
+           =========================================== */
+        @media (max-width: 900px) {
+            /* Override all grid layouts to single column */
+            .slide-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .nav-dots, .keyboard-hint { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal {
+                transition: opacity 0.3s ease;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar"></div>
+    <nav class="nav-dots"></nav>
+    <div class="keyboard-hint">Arrow keys or scroll to navigate</div>
+
+    <!-- Slide 1: Title -->
+    <section class="slide" id="slide-1">
+        <div class="slide-inner">
+            <div class="title-grid slide-grid">
+                <div>
+                    <div class="tag-line reveal s1">
+                        <span class="dot"></span>
+                        <span class="text">New Employee Onboarding</span>
+                    </div>
+                    <h1 class="reveal s2">Welcome to<br>the Team</h1>
+                    <p class="title-subtitle desc reveal s3">Everything you need to get started, meet your colleagues, and hit the ground running in your first week.</p>
+
+                    <div class="method-row reveal s4">
+                        <div class="method-item">
+                            <div class="icon primary"></div>
+                            <div>
+                                <div class="m-label">7 Slides</div>
+                                <div class="m-desc">Complete overview</div>
+                            </div>
+                        </div>
+                        <div class="method-item">
+                            <div class="icon accent"></div>
+                            <div>
+                                <div class="m-label">First Week</div>
+                                <div class="m-desc">Step-by-step guide</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar reveal s5 spot-group">
+                    <div class="sidebar-title">Quick Reference</div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Company Mission</span>
+                        <span class="pill primary">Slide 2</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Team Structure</span>
+                        <span class="pill primary">Slide 3</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">First Week Checklist</span>
+                        <span class="pill accent">Slide 4</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Tools We Use</span>
+                        <span class="pill primary">Slide 5</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Who to Contact</span>
+                        <span class="pill primary">Slide 6</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">01 / 07</span>
+    </section>
+
+    <!-- Slide 2: Company Mission -->
+    <section class="slide alt" id="slide-2">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Our Purpose</p>
+                    <h2 class="reveal s2">Company<br>Mission</h2>
+                    <p class="desc reveal s3">Understanding why we exist and what drives us is the foundation of everything we build together.</p>
+                </div>
+
+                <div class="rule-list spot-group">
+                    <div class="rule-item spot-item reveal s2">
+                        <div class="ri-icon">1</div>
+                        <div>
+                            <div class="ri-title">Our Mission</div>
+                            <div class="ri-desc">We build tools that empower teams to do their best work. Our products simplify complexity so our customers can focus on what matters most.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s3">
+                        <div class="ri-icon">2</div>
+                        <div>
+                            <div class="ri-title">Our Vision</div>
+                            <div class="ri-desc">A world where every team has access to thoughtfully designed software that removes friction and unlocks creative potential.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s4">
+                        <div class="ri-icon">3</div>
+                        <div>
+                            <div class="ri-title">Our Values</div>
+                            <div class="ri-desc">Ship with intention. Default to transparency. Treat feedback as a gift. Optimize for the team, not the individual.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s5">
+                        <div class="ri-icon">4</div>
+                        <div>
+                            <div class="ri-title">How We Work</div>
+                            <div class="ri-desc">Small autonomous teams, weekly shipping cycles, async-first communication, and a bias toward action over perfection.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">02 / 07</span>
+    </section>
+
+    <!-- Slide 3: Team Structure -->
+    <section class="slide" id="slide-3">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Organization</p>
+                    <h2 class="reveal s2">Team<br>Structure</h2>
+                    <p class="desc reveal s3">We operate as four core teams, each with a clear mandate. Teams collaborate closely but own their domain end to end.</p>
+                </div>
+
+                <div class="rule-list spot-group">
+                    <div class="rule-item spot-item reveal s2">
+                        <div class="ri-icon">E</div>
+                        <div>
+                            <div class="ri-title">Engineering</div>
+                            <div class="ri-desc">Builds and maintains the product. Responsible for architecture, reliability, performance, and shipping code. Works in two-week sprints with daily standups.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s3">
+                        <div class="ri-icon">P</div>
+                        <div>
+                            <div class="ri-title">Product</div>
+                            <div class="ri-desc">Defines what we build and why. Owns the roadmap, gathers customer insights, writes specs, and prioritizes work across the backlog.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s4">
+                        <div class="ri-icon">D</div>
+                        <div>
+                            <div class="ri-title">Design</div>
+                            <div class="ri-desc">Shapes how the product looks and feels. Leads user research, creates wireframes and prototypes, and maintains the design system.</div>
+                        </div>
+                    </div>
+                    <div class="rule-item spot-item reveal s5">
+                        <div class="ri-icon">S</div>
+                        <div>
+                            <div class="ri-title">Sales</div>
+                            <div class="ri-desc">Brings our product to market. Manages customer relationships, runs demos, closes deals, and feeds customer needs back to Product.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">03 / 07</span>
+    </section>
+
+    <!-- Slide 4: First Week Checklist -->
+    <section class="slide alt" id="slide-4">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Getting Started</p>
+                    <h2 class="reveal s2">First Week<br>Checklist</h2>
+                    <p class="desc reveal s3">Follow these five steps during your first week. Your onboarding buddy will help you through each one.</p>
+                </div>
+
+                <div class="flow-steps spot-group">
+                    <div class="flow-step spot-item reveal s2">
+                        <div class="fs-num">1</div>
+                        <div>
+                            <div class="fs-title">Set Up Your Accounts</div>
+                            <div class="fs-desc">Activate your email, Slack, GitHub, Linear, and Figma accounts using the credentials sent to your inbox. Enable two-factor authentication on all platforms.</div>
+                        </div>
+                    </div>
+                    <div class="flow-step spot-item reveal s3">
+                        <div class="fs-num">2</div>
+                        <div>
+                            <div class="fs-title">Meet Your Onboarding Buddy</div>
+                            <div class="fs-desc">Schedule a 30-minute intro call with your assigned buddy. They will walk you through team norms, answer questions, and be your go-to person for the first month.</div>
+                        </div>
+                    </div>
+                    <div class="flow-step spot-item reveal s4">
+                        <div class="fs-num">3</div>
+                        <div>
+                            <div class="fs-title">Complete HR Orientation</div>
+                            <div class="fs-desc">Finish all required paperwork, review the employee handbook, and complete the benefits enrollment process through the HR portal.</div>
+                        </div>
+                    </div>
+                    <div class="flow-step spot-item reveal s5">
+                        <div class="fs-num">4</div>
+                        <div>
+                            <div class="fs-title">Attend Team Standup</div>
+                            <div class="fs-desc">Join your team's daily standup to introduce yourself. No need to prepare anything -- just say hello and listen to how the team coordinates work.</div>
+                        </div>
+                    </div>
+                    <div class="flow-step spot-item reveal s6">
+                        <div class="fs-num">5</div>
+                        <div>
+                            <div class="fs-title">Ship Your First Contribution</div>
+                            <div class="fs-desc">Pick a starter task labeled "good first issue" in Linear. The goal is to go through the full workflow -- branch, build, review, merge -- by end of week.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">04 / 07</span>
+    </section>
+
+    <!-- Slide 5: Tools We Use -->
+    <section class="slide" id="slide-5">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Tooling</p>
+                    <h2 class="reveal s2">Tools<br>We Use</h2>
+                    <p class="desc reveal s3">Our core toolkit is intentionally small. Four platforms cover communication, project tracking, code, and design.</p>
+                </div>
+
+                <div class="icon-cards">
+                    <div class="icon-card reveal s2">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon primary">#</div>
+                            <div class="icon-card-title">Slack</div>
+                        </div>
+                        <ul>
+                            <li>Primary communication -- async messages, team channels, and quick huddles</li>
+                            <li>Key channels: #general, #engineering, #product, #design, #sales, #random</li>
+                            <li>Use threads to keep conversations organized</li>
+                        </ul>
+                    </div>
+
+                    <div class="icon-card reveal s3">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon accent">&#9654;</div>
+                            <div class="icon-card-title">Linear</div>
+                        </div>
+                        <ul>
+                            <li>Project management and issue tracking for all teams</li>
+                            <li>Create issues, track sprints, and manage the product roadmap</li>
+                            <li>Every task gets a Linear ticket before work begins</li>
+                        </ul>
+                    </div>
+
+                    <div class="icon-card reveal s4">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon primary">&#9679;</div>
+                            <div class="icon-card-title">GitHub</div>
+                        </div>
+                        <ul>
+                            <li>All source code, pull requests, and code reviews live here</li>
+                            <li>Branch naming: feature/your-name/short-description</li>
+                            <li>PRs require at least one approval before merging</li>
+                        </ul>
+                    </div>
+
+                    <div class="icon-card reveal s5">
+                        <div class="icon-card-header">
+                            <div class="icon-card-icon success">&#9670;</div>
+                            <div class="icon-card-title">Figma</div>
+                        </div>
+                        <ul>
+                            <li>Design files, prototypes, and the component library</li>
+                            <li>Engineers reference Figma for specs; comment directly on designs</li>
+                            <li>Design team maintains a shared library of reusable components</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">05 / 07</span>
+    </section>
+
+    <!-- Slide 6: Who to Contact -->
+    <section class="slide alt" id="slide-6">
+        <div class="slide-inner">
+            <div class="content-grid slide-grid">
+                <div>
+                    <p class="section-label reveal s1">Directory</p>
+                    <h2 class="reveal s2">Who to<br>Contact</h2>
+                    <p class="desc reveal s3">Not sure where to go? This quick-reference table maps common questions to the right person or team.</p>
+                </div>
+
+                <div>
+                    <table class="bench-table spot-table reveal s3">
+                        <thead>
+                            <tr>
+                                <th>Topic</th>
+                                <th>Contact</th>
+                                <th>How to Reach</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="bt-dataset">IT &amp; Account Access</td>
+                                <td>IT Help Desk</td>
+                                <td>#it-support on Slack</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-dataset">Benefits &amp; Payroll</td>
+                                <td>HR Team</td>
+                                <td>#hr-questions on Slack</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-dataset">Engineering Questions</td>
+                                <td>Your Tech Lead</td>
+                                <td>DM on Slack or team standup</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-dataset">Product &amp; Roadmap</td>
+                                <td>Product Manager</td>
+                                <td>#product on Slack</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-dataset">Design Assets &amp; Systems</td>
+                                <td>Design Lead</td>
+                                <td>#design on Slack or Figma comments</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-dataset">Onboarding Help</td>
+                                <td>Your Onboarding Buddy</td>
+                                <td>Direct message on Slack</td>
+                            </tr>
+                            <tr>
+                                <td class="bt-dataset">General Questions</td>
+                                <td>Your Manager</td>
+                                <td>Weekly 1:1 or DM anytime</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">06 / 07</span>
+    </section>
+
+    <!-- Slide 7: Get Started -->
+    <section class="slide" id="slide-7">
+        <div class="slide-inner">
+            <div class="title-grid slide-grid">
+                <div>
+                    <div class="tag-line reveal s1">
+                        <span class="dot"></span>
+                        <span class="text">You're All Set</span>
+                    </div>
+                    <h1 class="reveal s2">Ready to<br>Get Started</h1>
+                    <p class="title-subtitle desc reveal s3">You have the context, the tools, and the people. Your onboarding buddy is your first call for anything -- do not hesitate to reach out. Welcome aboard.</p>
+
+                    <div class="method-row reveal s4">
+                        <div class="method-item">
+                            <div class="icon primary"></div>
+                            <div>
+                                <div class="m-label">First Stop</div>
+                                <div class="m-desc">Set up your accounts</div>
+                            </div>
+                        </div>
+                        <div class="method-item">
+                            <div class="icon accent"></div>
+                            <div>
+                                <div class="m-label">First Goal</div>
+                                <div class="m-desc">Ship by end of week</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar reveal s5 spot-group">
+                    <div class="sidebar-title">Key Links</div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Employee Handbook</span>
+                        <span class="pill primary">HR Portal</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Engineering Wiki</span>
+                        <span class="pill primary">GitHub</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Design System</span>
+                        <span class="pill primary">Figma</span>
+                    </div>
+                    <div class="p-row spot-row">
+                        <span class="p-label">Starter Tasks</span>
+                        <span class="pill accent">Linear</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <span class="slide-num">07 / 07</span>
+    </section>
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.dots = document.querySelector('.nav-dots');
+                this.progressBar = document.querySelector('.progress-bar');
+                this.hint = document.querySelector('.keyboard-hint');
+                this.currentSlide = 0;
+
+                this.createDots();
+                this.setupObserver();
+                this.setupKeyboard();
+                this.setupWheel();
+                this.setupTouch();
+                this.updateProgress();
+            }
+
+            createDots() {
+                this.slides.forEach((slide, i) => {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+
+                    const heading = slide.querySelector('h1, h2');
+                    const title = heading ? heading.textContent.replace(/\s+/g, ' ').trim() : `Slide ${i + 1}`;
+                    dot.setAttribute('aria-label', `Go to slide ${i + 1}: ${title}`);
+
+                    const label = document.createElement('span');
+                    label.className = 'nav-label';
+                    label.innerHTML = `<span class="nav-label-num">${String(i + 1).padStart(2, '0')}</span>${title}`;
+                    dot.appendChild(label);
+
+                    dot.addEventListener('click', () => this.goTo(i));
+                    this.dots.appendChild(dot);
+                });
+            }
+
+            setupObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            const idx = [...this.slides].indexOf(entry.target);
+                            this.currentSlide = idx;
+                            this.updateDots();
+                            this.updateProgress();
+                            if (this.hint) this.hint.classList.add('hidden');
+                        }
+                    });
+                }, { threshold: 0.35 });
+
+                this.slides.forEach(s => observer.observe(s));
+            }
+
+            setupKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault();
+                        this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                    } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                });
+            }
+
+            setupWheel() {
+                let throttle = false;
+                document.addEventListener('wheel', (e) => {
+                    if (throttle) return;
+                    throttle = true;
+                    setTimeout(() => throttle = false, 800);
+
+                    if (e.deltaY > 30) {
+                        this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                    } else if (e.deltaY < -30) {
+                        this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                }, { passive: true });
+            }
+
+            setupTouch() {
+                let startY = 0;
+                document.addEventListener('touchstart', (e) => { startY = e.touches[0].clientY; }, { passive: true });
+                document.addEventListener('touchend', (e) => {
+                    const diff = startY - e.changedTouches[0].clientY;
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) this.goTo(Math.min(this.currentSlide + 1, this.slides.length - 1));
+                        else this.goTo(Math.max(this.currentSlide - 1, 0));
+                    }
+                }, { passive: true });
+            }
+
+            goTo(idx) {
+                this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+            }
+
+            updateDots() {
+                this.dots.querySelectorAll('.nav-dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === this.currentSlide);
+                });
+            }
+
+            updateProgress() {
+                const pct = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = pct + '%';
+            }
+        }
+
+        new SlidePresentation();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microservices Migration Plan</title>
+<style>
+  /* ── Reset & base ───────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0f1117;
+    --surface:  #1a1d27;
+    --card:     #222632;
+    --border:   #2e3345;
+    --text:     #e2e4ea;
+    --muted:    #8b8fa3;
+    --accent:   #6c8cff;
+    --accent2:  #a78bfa;
+    --green:    #34d399;
+    --amber:    #fbbf24;
+    --red:      #f87171;
+    --cyan:     #22d3ee;
+    --pink:     #f472b6;
+    --orange:   #fb923c;
+    --font:     'Segoe UI', system-ui, -apple-system, sans-serif;
+    --mono:     'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+  }
+
+  html { font-size: 16px; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ── Slide container ────────────────────────────────────── */
+  .deck {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: 3.5rem 5rem;
+    overflow-y: auto;
+    animation: fadeIn 0.35s ease;
+  }
+  .slide.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Typography ─────────────────────────────────────────── */
+  h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 0.6rem;
+  }
+  h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.2rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle {
+    font-size: 1.15rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  p, li { line-height: 1.65; }
+
+  ul { padding-left: 1.3rem; }
+  ul li { margin-bottom: 0.4rem; }
+  ul li::marker { color: var(--accent); }
+
+  .accent  { color: var(--accent); }
+  .accent2 { color: var(--accent2); }
+  .green   { color: var(--green); }
+  .amber   { color: var(--amber); }
+  .red     { color: var(--red); }
+  .cyan    { color: var(--cyan); }
+  .pink    { color: var(--pink); }
+  .orange  { color: var(--orange); }
+  .muted   { color: var(--muted); }
+  .bold    { font-weight: 700; }
+  .mono    { font-family: var(--mono); font-size: 0.92em; }
+
+  /* ── Layout helpers ─────────────────────────────────────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.4rem; }
+  .grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 1.6rem; }
+  .flex-center { display: flex; align-items: center; justify-content: center; flex: 1; }
+  .gap-1 { gap: 1rem; }
+  .mt-1  { margin-top: 1rem; }
+  .mt-2  { margin-top: 2rem; }
+  .mb-1  { margin-bottom: 1rem; }
+
+  /* ── Card ────────────────────────────────────────────────── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+  }
+
+  .card-accent {
+    border-left: 3px solid var(--accent);
+  }
+  .card-green  { border-left: 3px solid var(--green); }
+  .card-amber  { border-left: 3px solid var(--amber); }
+  .card-red    { border-left: 3px solid var(--red); }
+  .card-cyan   { border-left: 3px solid var(--cyan); }
+  .card-pink   { border-left: 3px solid var(--pink); }
+  .card-orange { border-left: 3px solid var(--orange); }
+
+  /* ── Tag / badge ─────────────────────────────────────────── */
+  .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
+  .tag-blue   { background: rgba(108,140,255,0.15); color: var(--accent); }
+  .tag-green  { background: rgba(52,211,153,0.15);  color: var(--green); }
+  .tag-amber  { background: rgba(251,191,36,0.15);  color: var(--amber); }
+  .tag-red    { background: rgba(248,113,113,0.15);  color: var(--red); }
+  .tag-cyan   { background: rgba(34,211,238,0.15);   color: var(--cyan); }
+  .tag-purple { background: rgba(167,139,250,0.15);  color: var(--accent2); }
+  .tag-pink   { background: rgba(244,114,182,0.15);  color: var(--pink); }
+  .tag-orange { background: rgba(251,146,60,0.15);   color: var(--orange); }
+
+  /* ── Divider ─────────────────────────────────────────────── */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.2rem 0;
+  }
+
+  /* ── Architecture diagram (CSS-only) ─────────────────────── */
+  .arch-box {
+    text-align: center;
+    border-radius: 10px;
+    padding: 0.9rem 0.6rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  .arch-gateway {
+    background: linear-gradient(135deg, rgba(108,140,255,0.2), rgba(167,139,250,0.2));
+    border-color: var(--accent);
+    grid-column: 1 / -1;
+  }
+  .arch-service { background: var(--card); }
+  .arch-data {
+    background: rgba(52,211,153,0.1);
+    border-color: var(--green);
+  }
+  .arch-queue {
+    background: rgba(251,191,36,0.1);
+    border-color: var(--amber);
+    grid-column: 1 / -1;
+  }
+
+  .arrow-down {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.3rem;
+    padding: 0.3rem 0;
+  }
+
+  /* ── Phase timeline ──────────────────────────────────────── */
+  .phase {
+    position: relative;
+    padding-left: 2rem;
+    padding-bottom: 1.2rem;
+  }
+  .phase::before {
+    content: '';
+    position: absolute;
+    left: 0.55rem;
+    top: 0.35rem;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .phase:last-child::before { display: none; }
+  .phase-dot {
+    position: absolute;
+    left: 0;
+    top: 0.2rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+  }
+  .phase-dot.done { background: var(--green); border-color: var(--green); }
+  .phase-dot.current { background: var(--accent); border-color: var(--accent); }
+
+  /* ── Risk matrix ─────────────────────────────────────────── */
+  .risk-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .risk-table th {
+    text-align: left;
+    padding: 0.65rem 0.8rem;
+    border-bottom: 2px solid var(--border);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .risk-table td {
+    padding: 0.65rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  /* ── Progress bar ────────────────────────────────────────── */
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 0.4rem;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+  }
+
+  /* ── Navigation ──────────────────────────────────────────── */
+  .nav {
+    position: fixed;
+    bottom: 1.4rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    z-index: 100;
+  }
+  .nav button {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    width: 2.4rem;
+    height: 2.4rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+  .nav button:hover { background: var(--border); }
+  .nav .counter {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    min-width: 3rem;
+    text-align: center;
+  }
+
+  /* ── Title slide special ─────────────────────────────────── */
+  .title-slide {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  .title-slide h1 {
+    font-size: 3.5rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.8rem;
+  }
+  .title-slide .subtitle {
+    font-size: 1.3rem;
+    max-width: 38rem;
+  }
+  .title-meta {
+    margin-top: 2.5rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  /* ── Section divider slide ──────────────────────────────── */
+  .section-slide {
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 8rem;
+  }
+  .section-slide .section-num {
+    font-size: 5rem;
+    font-weight: 800;
+    color: var(--accent);
+    opacity: 0.25;
+    line-height: 1;
+  }
+  .section-slide h1 {
+    font-size: 2.8rem;
+    margin-top: -0.5rem;
+  }
+
+  /* ── Monolith diagram ───────────────────────────────────── */
+  .monolith-box {
+    border: 2px solid var(--red);
+    border-radius: 14px;
+    padding: 1.8rem;
+    background: rgba(248,113,113,0.04);
+    text-align: center;
+  }
+  .monolith-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  .monolith-mod {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  /* ── Connector arrows (text-based) ──────────────────────── */
+  .connector {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.6rem;
+    line-height: 1;
+    padding: 0.3rem 0;
+  }
+
+  /* ── Service card (target arch) ─────────────────────────── */
+  .svc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  .svc-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem;
+  }
+  .svc-card .svc-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.4rem;
+  }
+  .svc-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+  .svc-card p {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── Comparison columns ──────────────────────────────────── */
+  .compare-col h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ============================================ -->
+  <!-- SLIDE 1 - Title                              -->
+  <!-- ============================================ -->
+  <div class="slide title-slide active" data-slide="1">
+    <h1>Microservices Migration</h1>
+    <p class="subtitle">From Django Monolith to a distributed service architecture &mdash; strategy, phases, risks, and target state</p>
+    <div class="title-meta">
+      Engineering Team &middot; Architecture Review &middot; April 2026
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 2 - Agenda                             -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="2">
+    <h2>Agenda</h2>
+    <p class="subtitle">What we will cover today</p>
+    <div class="grid-2" style="max-width: 52rem;">
+      <div class="card card-accent">
+        <span class="tag tag-blue">Part 1</span>
+        <h3>Current State</h3>
+        <p class="muted">The Django monolith, its pain points, and why we are migrating.</p>
+      </div>
+      <div class="card card-cyan">
+        <span class="tag tag-cyan">Part 2</span>
+        <h3>Target Architecture</h3>
+        <p class="muted">The 6 services, API gateway, message bus, and data strategy.</p>
+      </div>
+      <div class="card card-green">
+        <span class="tag tag-green">Part 3</span>
+        <h3>Migration Phases</h3>
+        <p class="muted">Four-phase plan with timelines, deliverables, and owners.</p>
+      </div>
+      <div class="card card-red">
+        <span class="tag tag-red">Part 4</span>
+        <h3>Key Risks &amp; Mitigations</h3>
+        <p class="muted">Technical and organizational risks, and how we address each.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 3 - Section Divider: Current State     -->
+  <!-- ============================================ -->
+  <div class="slide section-slide" data-slide="3">
+    <div class="section-num">01</div>
+    <h1>Current State</h1>
+    <p class="subtitle" style="max-width:32rem;">Understanding the monolith we are leaving behind</p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 4 - The Monolith Today                 -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="4">
+    <h2>The Django Monolith Today</h2>
+    <p class="subtitle">A single deployable containing all business domains</p>
+    <div class="grid-2">
+      <div>
+        <div class="monolith-box">
+          <strong class="red">django-monolith</strong>
+          <div class="monolith-inner">
+            <div class="monolith-mod">Auth</div>
+            <div class="monolith-mod">Billing</div>
+            <div class="monolith-mod">Notifications</div>
+            <div class="monolith-mod">Search</div>
+            <div class="monolith-mod">Content</div>
+            <div class="monolith-mod">Analytics</div>
+          </div>
+          <p class="muted" style="margin-top:1rem; font-size:0.82rem;">Single PostgreSQL database &middot; Shared ORM models &middot; Celery task queue</p>
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-1">Pain Points</h3>
+        <ul>
+          <li><span class="red bold">Deployment risk</span> &mdash; every change deploys everything</li>
+          <li><span class="red bold">Scaling bottleneck</span> &mdash; cannot scale search independently of billing</li>
+          <li><span class="red bold">Team coupling</span> &mdash; 4 squads stepping on each other in one repo</li>
+          <li><span class="red bold">Long CI cycles</span> &mdash; full test suite takes 38 min</li>
+          <li><span class="red bold">Tech lock-in</span> &mdash; everything must be Python/Django</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 5 - Why Migrate Now                    -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="5">
+    <h2>Why Migrate Now?</h2>
+    <p class="subtitle">Business and technical drivers forcing the decision</p>
+    <div class="grid-3">
+      <div class="card card-accent">
+        <span class="tag tag-blue">Scale</span>
+        <h3>10x Traffic Growth</h3>
+        <p class="muted">Projected traffic over the next 18 months requires independent scaling of search and content delivery.</p>
+      </div>
+      <div class="card card-green">
+        <span class="tag tag-green">Velocity</span>
+        <h3>Team Autonomy</h3>
+        <p class="muted">Squads need to deploy independently without cross-team coordination for every release.</p>
+      </div>
+      <div class="card card-amber">
+        <span class="tag tag-amber">Reliability</span>
+        <h3>Blast Radius</h3>
+        <p class="muted">A billing bug should not take down search. Fault isolation is a top-level SRE requirement.</p>
+      </div>
+    </div>
+    <div class="card mt-2" style="max-width:52rem;">
+      <h3>Decision Criteria</h3>
+      <p class="muted mt-1">The migration was approved after evaluating three options: (1) continue with the monolith, (2) modular monolith, and (3) full microservices. Option 3 was selected because it best satisfies our scaling, autonomy, and fault-isolation requirements, despite higher upfront complexity.</p>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 6 - Section Divider: Target Arch       -->
+  <!-- ============================================ -->
+  <div class="slide section-slide" data-slide="6">
+    <div class="section-num">02</div>
+    <h1>Target Architecture</h1>
+    <p class="subtitle" style="max-width:32rem;">Six services, one gateway, one message bus</p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 7 - Architecture Overview              -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="7">
+    <h2>Architecture Overview</h2>
+    <p class="subtitle">High-level view of the target state</p>
+
+    <div style="max-width: 54rem; margin: 0 auto;">
+      <!-- Clients -->
+      <div class="arch-box" style="background:rgba(167,139,250,0.1); border-color:var(--accent2); margin-bottom:0.4rem;">
+        Clients &nbsp;&mdash;&nbsp; Web App &middot; Mobile App &middot; Partner APIs
+      </div>
+      <div class="connector">&#9661;</div>
+
+      <!-- API Gateway -->
+      <div class="arch-box arch-gateway" style="margin-bottom:0.4rem;">
+        API Gateway &nbsp;/&nbsp; Load Balancer &nbsp;&mdash;&nbsp; rate limiting, auth token validation, routing
+      </div>
+      <div class="connector">&#9661;</div>
+
+      <!-- Services row -->
+      <div class="svc-grid" style="margin-bottom:0.4rem;">
+        <div class="arch-box arch-service" style="border-color:var(--accent);">Auth Service</div>
+        <div class="arch-box arch-service" style="border-color:var(--pink);">Billing Service</div>
+        <div class="arch-box arch-service" style="border-color:var(--amber);">Notifications Service</div>
+        <div class="arch-box arch-service" style="border-color:var(--cyan);">Search Service</div>
+        <div class="arch-box arch-service" style="border-color:var(--green);">Content Service</div>
+        <div class="arch-box arch-service" style="border-color:var(--orange);">Analytics Service</div>
+      </div>
+      <div class="connector">&#9661;</div>
+
+      <!-- Message bus -->
+      <div class="arch-box arch-queue" style="margin-bottom:0.4rem;">
+        Message Bus (Kafka / RabbitMQ) &nbsp;&mdash;&nbsp; async events, CQRS projections
+      </div>
+      <div class="connector">&#9661;</div>
+
+      <!-- Data stores -->
+      <div class="svc-grid">
+        <div class="arch-box arch-data">PostgreSQL (Auth, Billing, Content)</div>
+        <div class="arch-box arch-data">Elasticsearch (Search)</div>
+        <div class="arch-box arch-data">ClickHouse (Analytics) &middot; Redis (Cache)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 8 - The Six Services                   -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="8">
+    <h2>The Six Services</h2>
+    <p class="subtitle">Bounded contexts and responsibilities</p>
+    <div class="svc-grid">
+      <div class="svc-card" style="border-left: 3px solid var(--accent);">
+        <div class="svc-icon">&#128274;</div>
+        <h3 class="accent">Auth Service</h3>
+        <p>User identity, registration, login, OAuth, JWT issuance, role-based access control. Owns the <span class="mono">users</span> and <span class="mono">roles</span> tables.</p>
+      </div>
+      <div class="svc-card" style="border-left: 3px solid var(--pink);">
+        <div class="svc-icon">&#128179;</div>
+        <h3 class="pink">Billing Service</h3>
+        <p>Subscriptions, invoices, payment processing (Stripe integration), usage metering. Owns <span class="mono">subscriptions</span>, <span class="mono">invoices</span>.</p>
+      </div>
+      <div class="svc-card" style="border-left: 3px solid var(--amber);">
+        <div class="svc-icon">&#128276;</div>
+        <h3 class="amber">Notifications Service</h3>
+        <p>Email, push, in-app notifications. Template management, delivery tracking, preference center.</p>
+      </div>
+      <div class="svc-card" style="border-left: 3px solid var(--cyan);">
+        <div class="svc-icon">&#128269;</div>
+        <h3 class="cyan">Search Service</h3>
+        <p>Full-text and faceted search backed by Elasticsearch. Indexing pipeline, query parsing, relevance tuning.</p>
+      </div>
+      <div class="svc-card" style="border-left: 3px solid var(--green);">
+        <div class="svc-icon">&#128196;</div>
+        <h3 class="green">Content Service</h3>
+        <p>CRUD for articles, media, tags, categories. Versioning, drafts, publishing workflow. Core domain.</p>
+      </div>
+      <div class="svc-card" style="border-left: 3px solid var(--orange);">
+        <div class="svc-icon">&#128202;</div>
+        <h3 class="orange">Analytics Service</h3>
+        <p>Event ingestion, aggregation, dashboards. Writes to ClickHouse, exposes pre-computed metrics via API.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 9 - Data Strategy                      -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="9">
+    <h2>Data Strategy</h2>
+    <p class="subtitle">Database-per-service with event-driven synchronization</p>
+    <div class="grid-2">
+      <div>
+        <div class="card card-accent mb-1">
+          <span class="tag tag-blue">Principle</span>
+          <h3>Database per Service</h3>
+          <p class="muted">Each service owns its data store. No direct cross-service database access. This enforces loose coupling and allows each team to choose the best storage engine.</p>
+        </div>
+        <div class="card card-green mb-1">
+          <span class="tag tag-green">Sync Pattern</span>
+          <h3>Event-Driven (Outbox Pattern)</h3>
+          <p class="muted">Services publish domain events via the transactional outbox pattern. Consumers build local read-optimized projections (CQRS).</p>
+        </div>
+        <div class="card card-amber">
+          <span class="tag tag-amber">Consistency</span>
+          <h3>Eventual Consistency</h3>
+          <p class="muted">Cross-service queries are eventually consistent. Sagas handle distributed transactions (e.g., billing + notifications on subscription change).</p>
+        </div>
+      </div>
+      <div>
+        <h3 class="mb-1">Storage Mapping</h3>
+        <table class="risk-table">
+          <thead>
+            <tr><th>Service</th><th>Primary Store</th><th>Cache</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="accent bold">Auth</td><td>PostgreSQL</td><td>Redis</td></tr>
+            <tr><td class="pink bold">Billing</td><td>PostgreSQL</td><td>Redis</td></tr>
+            <tr><td class="amber bold">Notifications</td><td>PostgreSQL</td><td>&mdash;</td></tr>
+            <tr><td class="cyan bold">Search</td><td>Elasticsearch</td><td>Redis</td></tr>
+            <tr><td class="green bold">Content</td><td>PostgreSQL + S3</td><td>CDN / Redis</td></tr>
+            <tr><td class="orange bold">Analytics</td><td>ClickHouse</td><td>Redis</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 10 - Section Divider: Migration Phases -->
+  <!-- ============================================ -->
+  <div class="slide section-slide" data-slide="10">
+    <div class="section-num">03</div>
+    <h1>Migration Phases</h1>
+    <p class="subtitle" style="max-width:32rem;">A four-phase incremental approach using the Strangler Fig pattern</p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 11 - Phase Overview                    -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="11">
+    <h2>Phase Overview</h2>
+    <p class="subtitle">Incremental extraction using the Strangler Fig pattern</p>
+
+    <div style="max-width: 48rem;">
+      <div class="phase">
+        <div class="phase-dot done"></div>
+        <span class="tag tag-green">Phase 1 &mdash; Weeks 1-6</span>
+        <h3>Foundation &amp; Auth Extraction</h3>
+        <p class="muted">Set up infrastructure (API Gateway, CI/CD pipelines, observability). Extract the Auth service first &mdash; it has the fewest inbound dependencies and every other service needs it.</p>
+        <div class="progress-track"><div class="progress-fill" style="width:100%; background:var(--green);"></div></div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot current"></div>
+        <span class="tag tag-blue">Phase 2 &mdash; Weeks 7-14</span>
+        <h3>Extract Notifications &amp; Search</h3>
+        <p class="muted">Notifications is event-driven and largely decoupled. Search is read-heavy with a clear Elasticsearch boundary. Both can be extracted in parallel by separate squads.</p>
+        <div class="progress-track"><div class="progress-fill" style="width:45%;"></div></div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot"></div>
+        <span class="tag tag-amber">Phase 3 &mdash; Weeks 15-24</span>
+        <h3>Extract Billing &amp; Content</h3>
+        <p class="muted">These are the core domain services with deep coupling. Billing requires careful handling of Stripe webhooks and subscription state. Content has the largest data footprint.</p>
+        <div class="progress-track"><div class="progress-fill" style="width:0%;"></div></div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-dot"></div>
+        <span class="tag tag-purple">Phase 4 &mdash; Weeks 25-30</span>
+        <h3>Extract Analytics &amp; Decommission Monolith</h3>
+        <p class="muted">Migrate analytics event pipeline to ClickHouse. Remove legacy code paths. Decommission the monolith database. Run bake-in period.</p>
+        <div class="progress-track"><div class="progress-fill" style="width:0%;"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 12 - Phase 1 Detail                    -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="12">
+    <h2>Phase 1: Foundation &amp; Auth Extraction</h2>
+    <p class="subtitle">Weeks 1&ndash;6 &mdash; Laying the groundwork</p>
+    <div class="grid-2">
+      <div>
+        <div class="card card-green mb-1">
+          <span class="tag tag-green">Infrastructure</span>
+          <h3>Platform Setup</h3>
+          <ul>
+            <li>Kubernetes cluster provisioning</li>
+            <li>API Gateway (Kong / Envoy) deployment</li>
+            <li>CI/CD pipeline templates per service</li>
+            <li>Centralized logging (ELK) and tracing (Jaeger)</li>
+            <li>Service mesh basics (mTLS, retries)</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="card card-accent mb-1">
+          <span class="tag tag-blue">Auth Service</span>
+          <h3>First Extraction</h3>
+          <ul>
+            <li>Extract user model, registration, login endpoints</li>
+            <li>JWT token issuance moved to standalone service</li>
+            <li>Monolith becomes a <em>consumer</em> of Auth API</li>
+            <li>Dual-write period: monolith + Auth DB in sync</li>
+            <li>Feature flag to toggle between old and new auth</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card mt-1" style="max-width:52rem;">
+      <h3>Exit Criteria</h3>
+      <p class="muted">Auth service handling 100% of authentication traffic. Monolith no longer writes to auth tables. Latency p99 within 10% of monolith baseline. Zero auth-related incidents for 7 consecutive days.</p>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 13 - Phase 2 Detail                    -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="13">
+    <h2>Phase 2: Notifications &amp; Search</h2>
+    <p class="subtitle">Weeks 7&ndash;14 &mdash; Parallel extraction of two decoupled domains</p>
+    <div class="grid-2">
+      <div>
+        <div class="card card-amber mb-1">
+          <span class="tag tag-amber">Notifications</span>
+          <h3>Event-Driven by Nature</h3>
+          <ul>
+            <li>Already consumes events from Celery &mdash; switch to Kafka consumer</li>
+            <li>Extract email/push templates and delivery logic</li>
+            <li>Implement preference service endpoint</li>
+            <li>Migrate Celery notification tasks to dedicated workers</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="card card-cyan mb-1">
+          <span class="tag tag-cyan">Search</span>
+          <h3>Clear Data Boundary</h3>
+          <ul>
+            <li>Already backed by Elasticsearch &mdash; extract indexing pipeline</li>
+            <li>New gRPC API for query execution</li>
+            <li>Content change events trigger re-indexing via Kafka</li>
+            <li>Monolith search views proxy to new service</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card mt-1" style="max-width:52rem;">
+      <h3>Exit Criteria</h3>
+      <p class="muted">All notifications routed through the new service. Search latency p50 under 80ms. Monolith no longer directly queries Elasticsearch. Both services independently deployable and monitored.</p>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 14 - Phase 3 Detail                    -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="14">
+    <h2>Phase 3: Billing &amp; Content</h2>
+    <p class="subtitle">Weeks 15&ndash;24 &mdash; The hardest phase: core domain extraction</p>
+    <div class="grid-2">
+      <div>
+        <div class="card card-pink mb-1">
+          <span class="tag tag-pink">Billing</span>
+          <h3>High-Stakes Domain</h3>
+          <ul>
+            <li>Migrate Stripe webhook handlers to billing service</li>
+            <li>Implement saga for subscription lifecycle events</li>
+            <li>Shadow-mode billing: run old + new in parallel, compare outputs</li>
+            <li>PCI compliance review for the new service boundary</li>
+            <li>Data migration for invoices and payment history</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="card card-green mb-1">
+          <span class="tag tag-green">Content</span>
+          <h3>Largest Data Footprint</h3>
+          <ul>
+            <li>Extract article CRUD, media uploads (S3), tagging</li>
+            <li>Implement content versioning in the new service</li>
+            <li>Migrate publishing workflow and draft states</li>
+            <li>Zero-downtime PostgreSQL data migration (pglogical)</li>
+            <li>CDN integration for media serving</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card mt-1" style="max-width:52rem;">
+      <h3>Exit Criteria</h3>
+      <p class="muted">Billing shadow mode shows zero discrepancies for 14 days. Content service handles full CRUD load. All Stripe webhooks processed by billing service. No direct ORM access to billing/content tables from monolith.</p>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 15 - Phase 4 Detail                    -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="15">
+    <h2>Phase 4: Analytics &amp; Decommission</h2>
+    <p class="subtitle">Weeks 25&ndash;30 &mdash; Final extraction and monolith retirement</p>
+    <div class="grid-2">
+      <div>
+        <div class="card card-orange mb-1">
+          <span class="tag tag-orange">Analytics</span>
+          <h3>Event Pipeline Migration</h3>
+          <ul>
+            <li>Move event ingestion from Django middleware to Kafka consumers</li>
+            <li>Migrate from PostgreSQL aggregation queries to ClickHouse</li>
+            <li>Build pre-computed dashboard metrics API</li>
+            <li>Backfill historical data into ClickHouse</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="card card-red mb-1">
+          <span class="tag tag-red">Decommission</span>
+          <h3>Monolith Retirement</h3>
+          <ul>
+            <li>Remove all legacy code paths behind feature flags</li>
+            <li>Shut down monolith Celery workers</li>
+            <li>Decommission shared PostgreSQL database</li>
+            <li>Archive monolith repository</li>
+            <li>2-week bake-in monitoring period</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card mt-1" style="max-width:52rem;">
+      <h3>Exit Criteria</h3>
+      <p class="muted">Monolith receives zero traffic. All services green on SLOs for 14 days. Shared database connections at zero. Post-mortem and lessons learned documented.</p>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 16 - Section Divider: Risks            -->
+  <!-- ============================================ -->
+  <div class="slide section-slide" data-slide="16">
+    <div class="section-num">04</div>
+    <h1>Key Risks</h1>
+    <p class="subtitle" style="max-width:32rem;">What could go wrong, and how we plan to handle it</p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 17 - Risk Matrix                       -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="17">
+    <h2>Risk Matrix</h2>
+    <p class="subtitle">Top risks ranked by impact and likelihood</p>
+    <table class="risk-table" style="max-width:62rem;">
+      <thead>
+        <tr>
+          <th style="width:4rem;">#</th>
+          <th>Risk</th>
+          <th style="width:7rem;">Likelihood</th>
+          <th style="width:6rem;">Impact</th>
+          <th>Mitigation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-red">R1</span></td>
+          <td class="bold">Data inconsistency during dual-write</td>
+          <td><span class="red bold">High</span></td>
+          <td><span class="red bold">High</span></td>
+          <td class="muted">Transactional outbox pattern; reconciliation jobs; shadow-mode comparison</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">R2</span></td>
+          <td class="bold">Increased latency from network hops</td>
+          <td><span class="amber bold">Medium</span></td>
+          <td><span class="red bold">High</span></td>
+          <td class="muted">Service mesh with connection pooling; gRPC for internal calls; aggressive caching</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-amber">R3</span></td>
+          <td class="bold">Billing data loss during migration</td>
+          <td><span class="amber bold">Medium</span></td>
+          <td><span class="red bold">Critical</span></td>
+          <td class="muted">Shadow billing mode; dual-write with reconciliation; rollback plan with <5 min RTO</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-amber">R4</span></td>
+          <td class="bold">Team skill gaps in distributed systems</td>
+          <td><span class="amber bold">Medium</span></td>
+          <td><span class="amber bold">Medium</span></td>
+          <td class="muted">Training program; embedded SRE on each squad; architecture decision records (ADRs)</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">R5</span></td>
+          <td class="bold">Scope creep / migration fatigue</td>
+          <td><span class="red bold">High</span></td>
+          <td><span class="amber bold">Medium</span></td>
+          <td class="muted">Strict phase gates; no new features during extraction; weekly migration standups</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">R6</span></td>
+          <td class="bold">Observability gaps in new architecture</td>
+          <td><span class="amber bold">Medium</span></td>
+          <td><span class="amber bold">Medium</span></td>
+          <td class="muted">Mandatory distributed tracing; SLO dashboards per service before go-live</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 18 - Risk Deep Dive                    -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="18">
+    <h2>Risk Deep Dive</h2>
+    <p class="subtitle">Detailed mitigation strategies for the top three risks</p>
+    <div class="grid-3">
+      <div class="card card-red">
+        <span class="tag tag-red">R1 &mdash; Data Inconsistency</span>
+        <h3>Dual-Write Hazard</h3>
+        <hr>
+        <ul>
+          <li>Use the <span class="bold">transactional outbox</span> &mdash; never write to two databases in one operation</li>
+          <li>Nightly <span class="bold">reconciliation jobs</span> compare old and new data stores</li>
+          <li>Feature flags enable instant <span class="bold">rollback</span> to monolith code path</li>
+          <li>Alerts fire if reconciliation diff exceeds threshold</li>
+        </ul>
+      </div>
+      <div class="card card-amber">
+        <span class="tag tag-amber">R3 &mdash; Billing Data Loss</span>
+        <h3>Financial Data Safety</h3>
+        <hr>
+        <ul>
+          <li><span class="bold">Shadow mode:</span> new service processes in parallel but does not commit</li>
+          <li>Output comparison: automated diff of old vs. new invoice calculations</li>
+          <li>14-day shadow period before cutover</li>
+          <li>Rollback plan tested in staging with &lt;5 min RTO</li>
+        </ul>
+      </div>
+      <div class="card card-accent">
+        <span class="tag tag-blue">R5 &mdash; Scope Creep</span>
+        <h3>Migration Fatigue</h3>
+        <hr>
+        <ul>
+          <li>Strict <span class="bold">phase gate reviews</span> &mdash; no phase starts until prior phase exits</li>
+          <li><span class="bold">Feature freeze</span> on migrating domains during extraction</li>
+          <li>Dedicated migration squad; not shared with feature work</li>
+          <li>Weekly standup focused solely on migration progress</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 19 - Before & After                    -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="19">
+    <h2>Before &amp; After</h2>
+    <p class="subtitle">Key metrics we expect to improve</p>
+    <div class="grid-2">
+      <div class="compare-col">
+        <h3><span class="red">&#9679;</span> Before (Monolith)</h3>
+        <div class="card mb-1">
+          <table class="risk-table">
+            <tbody>
+              <tr><td class="muted">Deploy frequency</td><td class="bold">1&ndash;2x / week</td></tr>
+              <tr><td class="muted">Deploy lead time</td><td class="bold">3&ndash;5 days</td></tr>
+              <tr><td class="muted">CI pipeline</td><td class="bold">38 min</td></tr>
+              <tr><td class="muted">Blast radius</td><td class="bold">100% (full app)</td></tr>
+              <tr><td class="muted">Scaling granularity</td><td class="bold">All-or-nothing</td></tr>
+              <tr><td class="muted">Team coupling</td><td class="bold">High (shared repo)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="compare-col">
+        <h3><span class="green">&#9679;</span> After (Microservices)</h3>
+        <div class="card mb-1">
+          <table class="risk-table">
+            <tbody>
+              <tr><td class="muted">Deploy frequency</td><td class="green bold">Multiple / day / service</td></tr>
+              <tr><td class="muted">Deploy lead time</td><td class="green bold">&lt; 1 hour</td></tr>
+              <tr><td class="muted">CI pipeline</td><td class="green bold">5&ndash;8 min per service</td></tr>
+              <tr><td class="muted">Blast radius</td><td class="green bold">Single service</td></tr>
+              <tr><td class="muted">Scaling granularity</td><td class="green bold">Per-service auto-scale</td></tr>
+              <tr><td class="muted">Team coupling</td><td class="green bold">Low (owned repos)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- SLIDE 20 - Summary & Next Steps              -->
+  <!-- ============================================ -->
+  <div class="slide" data-slide="20">
+    <h2>Summary &amp; Next Steps</h2>
+    <p class="subtitle">Key takeaways and immediate action items</p>
+    <div class="grid-2">
+      <div>
+        <div class="card card-accent mb-1">
+          <h3>Key Takeaways</h3>
+          <ul>
+            <li>We are moving from a <span class="bold">Django monolith</span> to <span class="accent bold">6 independent services</span></li>
+            <li>Migration follows the <span class="bold">Strangler Fig pattern</span> across 4 phases over ~30 weeks</li>
+            <li>Auth is extracted first; Billing and Content are the hardest and come in Phase 3</li>
+            <li>Database-per-service with event-driven synchronization</li>
+            <li>Top risks are data inconsistency and billing data safety &mdash; both have dedicated mitigation plans</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="card card-green mb-1">
+          <h3>Immediate Next Steps</h3>
+          <ul>
+            <li>Finalize API Gateway selection (Kong vs. Envoy) &mdash; <span class="muted">this week</span></li>
+            <li>Provision Kubernetes cluster and CI/CD templates &mdash; <span class="muted">Week 1</span></li>
+            <li>Begin Auth service extraction &mdash; <span class="muted">Week 2</span></li>
+            <li>Schedule distributed systems training &mdash; <span class="muted">Week 3</span></li>
+            <li>Set up migration progress dashboard &mdash; <span class="muted">Week 1</span></li>
+          </ul>
+        </div>
+        <div class="card card-amber">
+          <h3>Open Decisions</h3>
+          <ul>
+            <li>Kafka vs. RabbitMQ for message bus</li>
+            <li>gRPC vs. REST for internal service communication</li>
+            <li>Shared library strategy for common utilities</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.deck -->
+
+<!-- ── Navigation ────────────────────────────────── -->
+<div class="nav">
+  <button id="prev" aria-label="Previous slide">&#8592;</button>
+  <span class="counter" id="counter">1 / 20</span>
+  <button id="next" aria-label="Next slide">&#8594;</button>
+</div>
+
+<script>
+(function () {
+  const slides = document.querySelectorAll('.slide');
+  const total  = slides.length;
+  let current  = 0;
+
+  function show(idx) {
+    slides[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, idx));
+    slides[current].classList.add('active');
+    document.getElementById('counter').textContent = (current + 1) + ' / ' + total;
+  }
+
+  document.getElementById('prev').addEventListener('click', () => show(current - 1));
+  document.getElementById('next').addEventListener('click', () => show(current + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault(); show(current + 1);
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault(); show(current - 1);
+    }
+    if (e.key === 'Home') { e.preventDefault(); show(0); }
+    if (e.key === 'End')  { e.preventDefault(); show(total - 1); }
+  });
+})();
+</script>
+</body>
+</html>

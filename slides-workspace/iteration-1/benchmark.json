@@ -1,0 +1,210 @@
+{
+  "metadata": {
+    "skill_name": "slides",
+    "skill_path": "/home/nic/repos/skills/slides",
+    "executor_model": "claude-opus-4-6",
+    "analyzer_model": "claude-opus-4-6",
+    "timestamp": "2026-04-01T14:30:00Z",
+    "evals_run": [1, 2, 3],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "eval_name": "quarterly-business-review",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.9,
+        "passed": 9,
+        "failed": 1,
+        "total": 10,
+        "time_seconds": 168.2,
+        "tokens": 39183,
+        "tool_calls": 7,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Loads Figtree and DM Sans fonts from Google Fonts", "passed": true, "evidence": "Figtree: found, DM Sans: found"},
+        {"text": "Uses navy (#1A1F5D) as primary heading color", "passed": true, "evidence": "Navy (#1A1F5D or --brand-navy): found"},
+        {"text": "Uses scroll-snap-type for slide navigation", "passed": true, "evidence": "scroll-snap-type: found"},
+        {"text": "Uses reveal animations with staggered delays", "passed": true, "evidence": "reveal class: found, stagger delays: found"},
+        {"text": "Implements spotlight hover on component groups", "passed": true, "evidence": "spotlight classes: found, dim pattern: found"},
+        {"text": "Includes a fixed progress bar", "passed": true, "evidence": "progress bar: found"},
+        {"text": "Includes navigation dots", "passed": true, "evidence": "nav dots: found"},
+        {"text": "Includes key data points ($4.2M, 18%, products, risks, APAC)", "passed": false, "evidence": "Found: $4.2M, 18%, 3 risks, APAC. Missing: 2 products"},
+        {"text": "Has at least 5 distinct slides", "passed": true, "evidence": "Found 6 slides (minimum 5 required)"},
+        {"text": "Uses font-weight 300 for body text", "passed": true, "evidence": "font-weight 300: found"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "quarterly-business-review",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.2,
+        "passed": 2,
+        "failed": 8,
+        "total": 10,
+        "time_seconds": 103.4,
+        "tokens": 16583,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Loads Figtree and DM Sans fonts from Google Fonts", "passed": false, "evidence": "Figtree: missing, DM Sans: missing"},
+        {"text": "Uses navy (#1A1F5D) as primary heading color", "passed": false, "evidence": "Navy (#1A1F5D or --brand-navy): not found"},
+        {"text": "Uses scroll-snap-type for slide navigation", "passed": false, "evidence": "scroll-snap-type: not found"},
+        {"text": "Uses reveal animations with staggered delays", "passed": false, "evidence": "reveal class: missing, stagger delays: missing"},
+        {"text": "Implements spotlight hover on component groups", "passed": false, "evidence": "spotlight classes: missing, dim pattern: missing"},
+        {"text": "Includes a fixed progress bar", "passed": true, "evidence": "progress bar: found"},
+        {"text": "Includes navigation dots", "passed": false, "evidence": "nav dots: not found"},
+        {"text": "Includes key data points ($4.2M, 18%, products, risks, APAC)", "passed": false, "evidence": "Found: $4.2M, 18%, 3 risks, APAC. Missing: 2 products"},
+        {"text": "Has at least 5 distinct slides", "passed": true, "evidence": "Found 9 slides (minimum 5 required)"},
+        {"text": "Uses font-weight 300 for body text", "passed": false, "evidence": "font-weight 300: not found"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "microservices-migration",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 200.5,
+        "tokens": 42623,
+        "tool_calls": 6,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Loads Figtree and DM Sans fonts from Google Fonts", "passed": true, "evidence": "Figtree: found, DM Sans: found"},
+        {"text": "Uses navy (#1A1F5D) as primary heading color", "passed": true, "evidence": "Navy (#1A1F5D or --brand-navy): found"},
+        {"text": "Uses scroll-snap-type for slide navigation", "passed": true, "evidence": "scroll-snap-type: found"},
+        {"text": "Uses reveal animations with staggered delays", "passed": true, "evidence": "reveal class: found, stagger delays: found"},
+        {"text": "Implements spotlight hover on component groups", "passed": true, "evidence": "spotlight classes: found, dim pattern: found"},
+        {"text": "Includes a fixed progress bar", "passed": true, "evidence": "progress bar: found"},
+        {"text": "Includes navigation dots", "passed": true, "evidence": "nav dots: found"},
+        {"text": "Mentions all 6 services and Django monolith", "passed": true, "evidence": "Found: auth, billing, notifications, search, content, analytics, Django"},
+        {"text": "Has at least 5 distinct slides", "passed": true, "evidence": "Found 8 slides (minimum 5 required)"},
+        {"text": "Uses font-weight 300 for body text", "passed": true, "evidence": "font-weight 300: found"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "microservices-migration",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.2,
+        "passed": 2,
+        "failed": 8,
+        "total": 10,
+        "time_seconds": 201.2,
+        "tokens": 23143,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Loads Figtree and DM Sans fonts from Google Fonts", "passed": false, "evidence": "Figtree: missing, DM Sans: missing"},
+        {"text": "Uses navy (#1A1F5D) as primary heading color", "passed": false, "evidence": "Navy (#1A1F5D or --brand-navy): not found"},
+        {"text": "Uses scroll-snap-type for slide navigation", "passed": false, "evidence": "scroll-snap-type: not found"},
+        {"text": "Uses reveal animations with staggered delays", "passed": false, "evidence": "reveal class: missing, stagger delays: missing"},
+        {"text": "Implements spotlight hover on component groups", "passed": false, "evidence": "spotlight classes: missing, dim pattern: missing"},
+        {"text": "Includes a fixed progress bar", "passed": false, "evidence": "progress bar: not found"},
+        {"text": "Includes navigation dots", "passed": false, "evidence": "nav dots: not found"},
+        {"text": "Mentions all 6 services and Django monolith", "passed": true, "evidence": "Found: auth, billing, notifications, search, content, analytics, Django"},
+        {"text": "Has at least 5 distinct slides", "passed": true, "evidence": "Found 20 slides (minimum 5 required)"},
+        {"text": "Uses font-weight 300 for body text", "passed": false, "evidence": "font-weight 300: not found"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "employee-onboarding",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 174.5,
+        "tokens": 40630,
+        "tool_calls": 7,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Loads Figtree and DM Sans fonts from Google Fonts", "passed": true, "evidence": "Figtree: found, DM Sans: found"},
+        {"text": "Uses navy (#1A1F5D) as primary heading color", "passed": true, "evidence": "Navy (#1A1F5D or --brand-navy): found"},
+        {"text": "Uses scroll-snap-type for slide navigation", "passed": true, "evidence": "scroll-snap-type: found"},
+        {"text": "Uses reveal animations with staggered delays", "passed": true, "evidence": "reveal class: found, stagger delays: found"},
+        {"text": "Implements spotlight hover on component groups", "passed": true, "evidence": "spotlight classes: found, dim pattern: found"},
+        {"text": "Includes a fixed progress bar", "passed": true, "evidence": "progress bar: found"},
+        {"text": "Includes navigation dots", "passed": true, "evidence": "nav dots: found"},
+        {"text": "Mentions all 4 teams and 4 tools", "passed": true, "evidence": "Found: Engineering, Product, Design, Sales, Slack, Linear, GitHub, Figma"},
+        {"text": "Has at least 5 distinct slides", "passed": true, "evidence": "Found 8 slides (minimum 5 required)"},
+        {"text": "Uses font-weight 300 for body text", "passed": true, "evidence": "font-weight 300: found"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "employee-onboarding",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.3,
+        "passed": 3,
+        "failed": 7,
+        "total": 10,
+        "time_seconds": 94.9,
+        "tokens": 15340,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "Loads Figtree and DM Sans fonts from Google Fonts", "passed": false, "evidence": "Figtree: missing, DM Sans: missing"},
+        {"text": "Uses navy (#1A1F5D) as primary heading color", "passed": false, "evidence": "Navy (#1A1F5D or --brand-navy): not found"},
+        {"text": "Uses scroll-snap-type for slide navigation", "passed": false, "evidence": "scroll-snap-type: not found"},
+        {"text": "Uses reveal animations with staggered delays", "passed": false, "evidence": "reveal class: missing, stagger delays: missing"},
+        {"text": "Implements spotlight hover on component groups", "passed": false, "evidence": "spotlight classes: missing, dim pattern: missing"},
+        {"text": "Includes a fixed progress bar", "passed": false, "evidence": "progress bar: not found"},
+        {"text": "Includes navigation dots", "passed": false, "evidence": "nav dots: not found"},
+        {"text": "Mentions all 4 teams and 4 tools", "passed": true, "evidence": "Found: Engineering, Product, Design, Sales, Slack, Linear, GitHub, Figma"},
+        {"text": "Has at least 5 distinct slides", "passed": true, "evidence": "Found 7 slides (minimum 5 required)"},
+        {"text": "Uses font-weight 300 for body text", "passed": true, "evidence": "font-weight 300: found"}
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {"mean": 0.967, "stddev": 0.058, "min": 0.9, "max": 1.0},
+      "time_seconds": {"mean": 181.1, "stddev": 16.8, "min": 168.2, "max": 200.5},
+      "tokens": {"mean": 40812, "stddev": 1741, "min": 39183, "max": 42623}
+    },
+    "without_skill": {
+      "pass_rate": {"mean": 0.233, "stddev": 0.058, "min": 0.2, "max": 0.3},
+      "time_seconds": {"mean": 133.2, "stddev": 58.8, "min": 94.9, "max": 201.2},
+      "tokens": {"mean": 18355, "stddev": 4189, "min": 15340, "max": 23143}
+    },
+    "delta": {
+      "pass_rate": "+0.73",
+      "time_seconds": "+47.9",
+      "tokens": "+22457"
+    }
+  },
+  "notes": [
+    "Design system assertions (fonts, colors, scroll-snap, reveal, spotlight, progress bar, nav dots, font-weight) pass 100% with skill and ~0% without - strong discriminators",
+    "Content accuracy and min-slides pass in both configurations - these are non-discriminating (test content inclusion, not design)",
+    "Skill adds ~48s average execution time and ~22K tokens due to reading reference files, but delivers 97% vs 23% design fidelity",
+    "QBR with-skill missed '2 products' content check - likely phrased differently, not a design system issue"
+  ]
+}
