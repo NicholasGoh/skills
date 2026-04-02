@@ -51,7 +51,7 @@ Rows with a prominent letter/grade/icon and description. Good for rating scales,
     text-align: center;
 }
 
-/* Color each grade — adjust these to match your rating scheme */
+/* Color each grade: adjust these to match your rating scheme */
 .grade-card .gc-letter.a { color: #16a34a; }
 .grade-card .gc-letter.b { color: #2563eb; }
 .grade-card .gc-letter.c { color: #ca8a04; }

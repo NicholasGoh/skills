@@ -18,3 +18,4 @@ All grid layouts should use the class `slide-grid` in addition to any component-
 | 10 | Sidebar Panel | `sidebar-panel.md` | Gray rounded box with labeled rows |
 | 11 | Stat Callouts | `stat-callouts.md` | Large number + label pairs |
 | 12 | Deprioritised Content | `deprioritised-content.md` | Muted styling for lower-importance items |
+| 13 | Chat Evidence | `chat-evidence.md` | Chat-like user/AI message pairs for conversational evidence, test transcripts, or security findings |

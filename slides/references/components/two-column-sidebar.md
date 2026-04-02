@@ -34,7 +34,7 @@ The standard content slide layout. Left column has section label, h2, and descri
 }
 ```
 
-**Variant — wide sidebar** (for slides where the left description needs more room):
+**Variant: wide sidebar** (for slides where the left description needs more room):
 ```css
 .content-grid.wide-left {
     grid-template-columns: 1fr 320px;

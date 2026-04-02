@@ -104,4 +104,4 @@ Styled table with spotlight row hover. Good for benchmarks, comparisons, specifi
 }
 ```
 
-Table cells don't need the `bt-*` classes — those are semantic helpers. For simpler tables, plain `<td>` with default styling works fine.
+Table cells don't need the `bt-*` classes; those are semantic helpers. For simpler tables, plain `<td>` with default styling works fine.

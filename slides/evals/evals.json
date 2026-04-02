@@ -15,7 +15,7 @@
     },
     {
       "id": 3,
-      "prompt": "Create a new employee onboarding presentation. Cover: company mission, team structure (Engineering, Product, Design, Sales — 4 teams), first week checklist (5 steps), tools we use (Slack, Linear, GitHub, Figma), and who to contact for what.",
+      "prompt": "Create a new employee onboarding presentation. Cover: company mission, team structure (Engineering, Product, Design, Sales, 4 teams), first week checklist (5 steps), tools we use (Slack, Linear, GitHub, Figma), and who to contact for what.",
       "expected_output": "6-8 slide HTML presentation with title/mission slide, team structure as cards or principle list, first week as flow steps, tools as icon cards, contacts as sidebar rows. Friendly but professional tone.",
       "files": []
     }
