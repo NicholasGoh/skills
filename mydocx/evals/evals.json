@@ -1,0 +1,58 @@
+{
+  "skill_name": "mydocx",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a Word document for our Q1 2026 quarterly business review. Revenue was $4.2M (up 18% YoY), we launched 2 new products (Enterprise Dashboard and Mobile SDK), have 3 key risks (supply chain delays, competitor pricing pressure, talent retention), and next quarter priorities are expanding into APAC, hiring 15 engineers, and shipping v3.0. Include a cover page, executive summary, and sections for each topic with appropriate tables and metrics.",
+      "expected_output": "Professional .docx with cover page (title, date, author), TOC, executive summary panel with navy accent bar, key metrics row (revenue, growth, headcount), data table for product launches, callout boxes for risks, flow steps for priorities. Uses the navy/red design system, proper heading hierarchy, header/footer with page numbers.",
+      "files": [],
+      "assertions": [
+        {"id": "docx-generated", "text": "A valid .docx file was generated and exists in the outputs directory"},
+        {"id": "cover-page", "text": "Document begins with a cover/title page containing the document title and date"},
+        {"id": "executive-summary", "text": "Document contains an executive summary section with key findings"},
+        {"id": "revenue-data", "text": "Revenue figure ($4.2M) and growth (18% YoY) appear in the document"},
+        {"id": "products-section", "text": "Both products (Enterprise Dashboard and Mobile SDK) are mentioned"},
+        {"id": "risks-section", "text": "All 3 risks are listed (supply chain, competitor pricing, talent retention)"},
+        {"id": "priorities-section", "text": "Next quarter priorities are included (APAC, hiring, v3.0)"},
+        {"id": "uses-tables", "text": "Document uses at least one formatted table for structured data"},
+        {"id": "heading-hierarchy", "text": "Document uses proper heading levels (H1, H2) for structure"},
+        {"id": "navy-brand-color", "text": "Script uses the navy brand color (#1A1F5D or 1A1F5D) for headings"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Create a project proposal document for migrating our Django monolith to microservices. We're splitting into 6 services: auth, billing, notifications, search, content, analytics. Include a cover page, executive summary, current vs proposed architecture comparison, migration phases (4 phases over 12 months), risk assessment, and team requirements with a sign-off block.",
+      "expected_output": "5-8 page .docx with cover page, executive summary callout, two-column current/proposed architecture comparison, flow steps for 4 migration phases, data table for risk assessment with severity ratings, checklist for team requirements, signature block. Professional layout with consistent design system formatting.",
+      "files": [],
+      "assertions": [
+        {"id": "docx-generated", "text": "A valid .docx file was generated and exists in the outputs directory"},
+        {"id": "cover-page", "text": "Document begins with a cover/title page"},
+        {"id": "executive-summary", "text": "Document contains an executive summary section"},
+        {"id": "all-six-services", "text": "All 6 services are mentioned (auth, billing, notifications, search, content, analytics)"},
+        {"id": "architecture-comparison", "text": "Document includes a current vs proposed architecture comparison"},
+        {"id": "four-phases", "text": "Four migration phases are described"},
+        {"id": "risk-assessment", "text": "Risk assessment section with identified risks exists"},
+        {"id": "sign-off-block", "text": "Document ends with a signature or sign-off block"},
+        {"id": "uses-tables", "text": "Document uses at least one formatted table"},
+        {"id": "navy-brand-color", "text": "Script uses the navy brand color (#1A1F5D or 1A1F5D) for headings"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create a new employee onboarding document. Cover: company mission statement, team structure (Engineering 45 people, Product 12, Design 8, Sales 20), first week checklist (5 setup steps), tools we use (Slack for comms, Linear for tickets, GitHub for code, Figma for design) with descriptions, and key contacts (CTO Jane Smith, VP Eng Bob Chen, HR Lead Maria Garcia).",
+      "expected_output": "Friendly but professional .docx with header/footer, bullet lists for team descriptions, key metrics for team sizes, checklist with TODO status for first week, data table for tools with descriptions, data table for contacts with roles and responsibilities. Clean typography, consistent spacing, navy headings.",
+      "files": [],
+      "assertions": [
+        {"id": "docx-generated", "text": "A valid .docx file was generated and exists in the outputs directory"},
+        {"id": "mission-statement", "text": "Document includes a company mission statement section"},
+        {"id": "team-structure", "text": "All 4 teams are listed with their sizes (Engineering 45, Product 12, Design 8, Sales 20)"},
+        {"id": "first-week-checklist", "text": "A first week checklist with 5 setup steps is present"},
+        {"id": "all-tools-listed", "text": "All 4 tools are listed (Slack, Linear, GitHub, Figma) with descriptions"},
+        {"id": "key-contacts", "text": "All 3 contacts are listed (Jane Smith, Bob Chen, Maria Garcia) with roles"},
+        {"id": "uses-tables-or-lists", "text": "Document uses tables or formatted lists for structured content"},
+        {"id": "heading-hierarchy", "text": "Document uses proper heading levels for structure"},
+        {"id": "navy-brand-color", "text": "Script uses the navy brand color (#1A1F5D or 1A1F5D) for headings"}
+      ]
+    }
+  ]
+}
