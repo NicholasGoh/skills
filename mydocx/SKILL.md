@@ -31,7 +31,7 @@ Key principles:
 
 ### Step 1: Read the template
 
-Read `references/template.js` in this skill directory. It contains the complete design system (tokens, styles, page setup, numbering config) and the Packer output. The template has `/* __SECTIONS__ */` and `DOCUMENT_FILENAME` markers for content insertion.
+Read `references/template.js` in this skill directory. It contains the document shell (styles, page setup, numbering config) and the Packer output. Design tokens and component functions live in `references/components.js` (copied alongside the template, not read into context). The template has `/* __SECTIONS__ */` and `DOCUMENT_FILENAME` markers for content insertion.
 
 ### Step 2: Plan the document structure
 
@@ -43,29 +43,35 @@ Decide on sections and what each covers. Typical structures:
 
 ### Step 3: Pick components
 
-Read `references/components/index.md` for the catalog with when-to-use guidance. Then read only the component files you need. Each file includes JavaScript (docx-js) code to insert into the sections array.
+Read `references/components/index.md` for the component API. Each function handles borders, shading, spacing, and colors automatically. You pass content; the design system is applied.
 
 Common document patterns:
-- **Formal report**: Cover page + TOC + executive summary + data tables + key metrics
-- **Process document**: Header/footer + flow steps + checklists + callout boxes
-- **Proposal**: Cover page + two-column layout + data tables + signature block
-- **Memo**: Header/footer + bullet lists + callout boxes + signature block
+- **Formal report**: coverPage + toc + executiveSummary + dataTable + keyMetrics
+- **Process document**: headerFooter + flowSteps + checklist + callout
+- **Proposal**: coverPage + twoColumn + dataTable + signatureBlock
+- **Memo**: headerFooter + bulletList + callout + signatureBlock
 
 ### Step 4: Assemble and output
 
-Do NOT regenerate the template from memory. Use the file directly:
+Do NOT regenerate the template or components from memory. Copy the files directly:
 
-1. **Copy**: `cp <skill-dir>/references/template.js <output-dir>/create_doc.js`
+1. **Copy both files**:
+   ```bash
+   cp <skill-dir>/references/template.js <output-dir>/create_doc.js
+   cp <skill-dir>/references/components.js <output-dir>/components.js
+   ```
 2. **Filename**: replace `DOCUMENT_FILENAME` with the actual output filename (e.g., `report.docx`)
-3. **Sections**: replace `/* __SECTIONS__ */` with section content from components
+3. **Sections**: replace `/* __SECTIONS__ */` with section content using `C.` component calls
 4. **Run**: `node create_doc.js`
 5. **Validate**: `python <skill-dir>/scripts/office/validate.py <output>.docx`
+
+Use `C.section(children, opts)` to build content sections. It auto-flattens children, so array-returning functions (executiveSummary, bulletList, numberedList, imageBlock, signatureBlock) work without `...spread`. For raw docx-js alongside component calls, all docx classes are available in the template scope.
 
 After generating, open or convert to verify layout. If validation flags issues, unpack, fix, and repack (see Editing below).
 
 ## Adapting the Color Palette
 
-Update the `BRAND` object in the template to change the design system globally:
+Update the `BRAND` object in `components.js` to change the design system globally:
 
 - `navy`: Primary heading color
 - `red`: Action/emphasis accent (callout borders, status indicators, step numbers)
