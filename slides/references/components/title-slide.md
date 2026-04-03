@@ -1,6 +1,6 @@
 # Title Slide
 
-The opening slide. Two-column: left has tag line, h1, subtitle, and optional legend/method row. Right has a sidebar summary panel.
+The opening slide. Two-column grid: main content (1fr) + sidebar (340px). Left has tag line (red dot + uppercase category label), h1 heading, subtitle, and optional legend/method row with colored dot icons. Right has a sidebar summary panel (see Sidebar Panel component).
 
 ## HTML
 
@@ -44,54 +44,4 @@ The opening slide. Two-column: left has tag line, h1, subtitle, and optional leg
     </div>
     <span class="slide-num">01 / TOTAL</span>
 </section>
-```
-
-## CSS
-
-```css
-.title-grid {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 4rem;
-    align-items: center;
-}
-
-.title-subtitle {
-    max-width: 460px;
-    margin-bottom: 3vh;
-}
-
-.method-row {
-    display: flex;
-    gap: 1.5rem;
-}
-
-.method-item {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-}
-
-.method-item .icon {
-    width: 8px;
-    height: 8px;
-    border-radius: 2px;
-    flex-shrink: 0;
-    margin-top: 2px;
-}
-
-.method-item .icon.primary { background: var(--brand-navy); }
-.method-item .icon.accent { background: var(--brand-red); }
-
-.method-item .m-label {
-    font-size: 0.75rem;
-    color: var(--brand-black);
-    font-weight: 500;
-}
-
-.method-item .m-desc {
-    font-size: 0.7rem;
-    color: var(--brand-muted);
-    font-weight: 300;
-}
 ```

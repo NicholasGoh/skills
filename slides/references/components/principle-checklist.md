@@ -1,6 +1,6 @@
 # Principle / Checklist
 
-Numbered rows with status pills. Good for feature lists, governance principles, requirements, or any list where items have a status/category.
+Numbered rows with status pills. Good for feature lists, governance principles, requirements, or any list where items have a status/category. Three-column grid: 2-digit number, item name, and status pill. Active items have red numbers; inactive ones are muted.
 
 ## HTML
 
@@ -18,43 +18,4 @@ Numbered rows with status pills. Good for feature lists, governance principles, 
     </div>
     <!-- more items... -->
 </div>
-```
-
-## CSS
-
-```css
-.principle-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-}
-
-.pl-item {
-    display: grid;
-    grid-template-columns: 32px 1fr auto;
-    gap: 0.8rem;
-    padding: 0.75em 0;
-    border-bottom: 1px solid var(--border);
-    align-items: center;
-}
-
-.pl-item:last-child { border-bottom: none; }
-
-.pl-item .pl-num {
-    font-family: var(--font-heading);
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--brand-muted);
-    text-align: center;
-}
-
-.pl-item.active .pl-num { color: var(--brand-red); }
-
-.pl-item .pl-name {
-    font-size: 0.82rem;
-    font-weight: 400;
-    color: var(--brand-black);
-}
-
-.pl-item.inactive .pl-name { color: var(--brand-muted); }
 ```

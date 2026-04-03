@@ -29,11 +29,7 @@ Key principles:
 
 ## How to Build a Presentation
 
-### Step 1: Read the template
-
-Read `references/template.html` in this skill directory. It contains the complete CSS design system (tokens, engine, shared components) and the JS presentation controller. The template has `<!-- __SLIDES__ -->` and `/* __COMPONENT_CSS__ */` markers for content insertion.
-
-### Step 2: Plan the slide structure
+### Step 1: Plan the slide structure
 
 Decide how many slides and what each one covers. Typical structures:
 - **6-8 slides** for a focused topic (overview, 4-6 content slides, next steps)
@@ -52,9 +48,9 @@ Every slide follows this shell:
 
 Alternate `class="slide"` (white) and `class="slide alt"` (gray) for visual rhythm.
 
-### Step 3: Pick components
+### Step 2: Pick components
 
-Read `references/components/index.md` for the catalog with when-to-use guidance. Then read only the component files you need. Each file includes HTML structure and CSS to add to the `<style>` block.
+Read `references/components/index.md` for the catalog with when-to-use guidance. Then read only the `.md` files for the components you need. Each `.md` file describes the visual appearance and shows the HTML structure. A matching `.css` file (same name, different extension) contains the styling; you do not need to read the `.css` files since they are injected automatically during assembly.
 
 Common slide patterns:
 - **Title slide**: 2-column with heading + sidebar summary
@@ -62,7 +58,7 @@ Common slide patterns:
 - **Table slide**: Full-width header + data table
 - **Card grid slide**: 2-column with description + card stack
 
-### Step 4: Apply reveal classes
+### Step 3: Apply reveal classes
 
 Every element that should animate in gets `class="reveal sN"` where N is the stagger order (1-7). Typically:
 - Section labels get `s1`
@@ -70,7 +66,7 @@ Every element that should animate in gets `class="reveal sN"` where N is the sta
 - Description text gets `s3`
 - Content items get `s2` through `s7` (staggered)
 
-### Step 5: Apply spotlight classes
+### Step 4: Apply spotlight classes
 
 Add interactive hover focus to groups of related items. Choose the appropriate variant:
 - **`.spot-group` + `.spot-item`**: For generic lists (rules, steps, grades). Apply `spot-group` to the container, `spot-item` to each child.
@@ -78,16 +74,21 @@ Add interactive hover focus to groups of related items. Choose the appropriate v
 - **`.spot-card`**: For side-by-side or stacked cards. Apply to each card. Uses `:has()` for sibling dimming + subtle elevation.
 - **`.spot-group` + `.spot-row`**: For sidebar-style tight rows. Subtle background on hover.
 
-### Step 6: Assemble and output
+### Step 5: Assemble and output
 
-Do NOT regenerate the template from memory. Use the file directly:
+Do NOT regenerate the template or component CSS from memory. Use the files directly via the assembly script:
 
-1. **Copy**: `cp <skill-dir>/references/template.html <output-path>`
-2. **Title**: replace `PRESENTATION_TITLE` with the actual title
-3. **CSS**: replace `/* __COMPONENT_CSS__ */` with all component CSS
-4. **Slides**: replace `<!-- __SLIDES__ -->` with all `<section>` elements
+1. Write only the slide `<section>` HTML to a temp file (e.g., `/tmp/slides.html`)
+2. Run the assembly script:
+```bash
+bash <skill-dir>/scripts/assemble.sh \
+    <output-path> \
+    "Presentation Title" \
+    /tmp/slides.html \
+    title-slide two-column-sidebar flow-steps  # list the components you used
+```
 
-After inserting slides, update the total count in every `<span class="slide-num">` (e.g., `01 / 08`).
+The script handles: copying the template, replacing the title, concatenating component `.css` files and injecting them at `/* __COMPONENT_CSS__ */`, injecting your slide HTML at `<!-- __SLIDES__ -->`, and updating all slide number totals.
 
 ## Adapting the Color Palette
 

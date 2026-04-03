@@ -1,0 +1,10 @@
+.content-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+
+.content-grid.wide-left {
+    grid-template-columns: 1fr 320px;
+}

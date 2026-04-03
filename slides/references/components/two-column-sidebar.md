@@ -1,6 +1,6 @@
 # Two-Column with Sidebar
 
-The standard content slide layout. Left column has section label, h2, and description. Right column has the main content (list, cards, table, etc.).
+The standard content slide layout. Left column has section label, h2, and description. Right column has the main content (list, cards, table, etc.). Grid layout: sidebar (300px) + content area (1fr). Wide-left variant (`.content-grid.wide-left`) reverses the proportions for slides where the left description needs more room.
 
 ## HTML
 
@@ -21,22 +21,4 @@ The standard content slide layout. Left column has section label, h2, and descri
     </div>
     <span class="slide-num">0N / TOTAL</span>
 </section>
-```
-
-## CSS
-
-```css
-.content-grid {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 4rem;
-    align-items: start;
-}
-```
-
-**Variant: wide sidebar** (for slides where the left description needs more room):
-```css
-.content-grid.wide-left {
-    grid-template-columns: 1fr 320px;
-}
 ```

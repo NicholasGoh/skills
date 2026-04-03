@@ -1,6 +1,6 @@
 # Component Catalog
 
-Pick the components that fit your content. Mix and match freely.
+Pick the components that fit your content. Mix and match freely. Each component has a `.md` (HTML pattern + description) and a `.css` (styling). Read only the `.md` files you need; the assembly script injects the `.css` files automatically.
 
 All grid layouts should use the class `slide-grid` in addition to any component-specific class, so the responsive override in the template works.
 
