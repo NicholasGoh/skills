@@ -57,6 +57,17 @@ Common slide patterns:
 - **List/process slide**: 2-column with section label + numbered items or cards
 - **Table slide**: Full-width header + data table
 - **Card grid slide**: 2-column with description + card stack
+- **Evidence slide**: 2-column with finding context left, chat evidence right (see below)
+
+#### Evidence slides (chat-based findings)
+
+Slides that present chat-based evidence (using the chat-evidence component) follow a specific convention:
+- **h2 (heading)**: The finding name (e.g., "Prompt Injection", "Hallucination")
+- **section-label (above the heading)**: The principle being assessed and its grade if applicable (e.g., "Security", "Robustness"). If the finding has a letter grade, include it as a `.pill.grade-*` element near the label. If comparing against a previous version and the grade changed, show both grades to indicate improvement or degradation (e.g., `F` becoming `D`).
+- **desc**: Brief explanation of what was found and why it matters
+- **Right column**: Chat evidence containers showing the actual conversation transcript
+
+This structure allows `scripts/deck.py overview` to surface finding names, principles, and grades at a glance.
 
 ### Step 3: Apply reveal classes
 
