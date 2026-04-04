@@ -90,6 +90,42 @@ bash <skill-dir>/scripts/assemble.sh \
 
 The script handles: copying the template, replacing the title, concatenating component `.css` files and injecting them at `/* __COMPONENT_CSS__ */`, injecting your slide HTML at `<!-- __SLIDES__ -->`, and updating all slide number totals.
 
+## Editing Existing Presentations
+
+When the user references an existing slide deck and wants changes, use `scripts/deck.py` to understand the deck and make targeted edits without reading the entire HTML file.
+
+### Get an overview
+```bash
+uv run <skill-dir>/scripts/deck.py overview presentation.html
+```
+Shows slide count, title, palette overrides, and a table of all slides with heading, section label, detected components, and grade (for evidence slides). For chat evidence slides the grade comes from `.pill.grade-*` elements or the title slide's principle grade sidebar.
+
+### Extract a slide
+```bash
+uv run <skill-dir>/scripts/deck.py extract presentation.html 3 > /tmp/slide3.html
+```
+Outputs the complete `<section>` HTML for the given slide number. The output is directly usable as input to `replace` or `insert`.
+
+### Replace a slide
+```bash
+uv run <skill-dir>/scripts/deck.py replace presentation.html 3 /tmp/new-slide.html --in-place
+```
+Replaces slide 3 with new content. Renumbers all slides automatically.
+
+### Delete a slide
+```bash
+uv run <skill-dir>/scripts/deck.py delete presentation.html 5 --in-place
+```
+Removes slide 5 and renumbers remaining slides.
+
+### Insert a slide
+```bash
+uv run <skill-dir>/scripts/deck.py insert presentation.html 3 /tmp/new-slide.html --in-place
+```
+Inserts a new slide before position 3 (existing slides shift down). Use a position larger than the slide count to append at the end.
+
+All mutating commands write to stdout by default. Use `--in-place` to modify the file directly, or `-o output.html` to write to a new file.
+
 ## Adapting the Color Palette
 
 If the user provides brand colors or you need a different palette, update the CSS custom properties in `:root`. The design system references these variables everywhere, so changing them propagates globally:
