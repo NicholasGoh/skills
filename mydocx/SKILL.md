@@ -26,6 +26,7 @@ Key principles:
 - **Structured hierarchy.** Clear heading levels with outline support for TOC generation. Purposeful use of borders and shading for grouping, not decoration.
 - **DXA precision.** All dimensions in DXA units (1440 = 1 inch) for pixel-perfect consistency across readers. Never use percentages for table widths.
 - **No dashes in prose.** Never use em dashes, en dashes, or double hyphens in document text. These are hallmarks of generic AI writing. Restructure sentences instead: use periods, commas, colons, semicolons, or parentheses. Hyphens in compound modifiers (e.g. "two-column") are fine.
+- **Q&A evidence, not transcript blocks.** When a document includes evidence from conversations, interviews, or chat logs, present it as structured Q&A pairs: each question as a bold label followed by the answer as body text. Never paste a raw transcript or chat log as a monolithic block. The reader needs to scan individual exchanges, not wade through a wall of dialogue. Format each exchange as its own unit so findings are easy to locate and reference.
 
 ## How to Build a Document
 
